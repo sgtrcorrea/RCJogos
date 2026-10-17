@@ -1,0 +1,15 @@
+{
+  "name": "RC Jogos",
+  "short_name": "RC Jogos",
+  "description": "Biblioteca de jogos arcade",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#120e22",
+  "theme_color": "#120e22",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}

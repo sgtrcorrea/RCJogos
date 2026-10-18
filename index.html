@@ -49,19 +49,18 @@ ol{padding-left:22px;margin:8px 0}
 </header>
 <main>
 <section class="panel" id="addp">
-  <b>Novo jogo (Dev Studio)</b>
+  <b>Novo jogo (Nuvem Google Drive)</b>
   <input type="text" id="nm" placeholder="Nome do jogo">
   <input type="text" id="ds" placeholder="Descrição curta (opcional)">
   <select id="ct"><option>Arcade</option><option>Corrida</option><option>Puzzle</option><option>Tiro</option><option>Plataforma</option><option>Outros</option></select>
-  <label class="mu">Capa (opcional): <input type="file" id="cvf" accept="image/*"></label>
   <textarea id="code" placeholder="Cole aqui o HTML completo do jogo…"></textarea>
   <div class="row">
     <input type="file" id="file" accept=".html,.htm,text/html" style="width:auto">
     <button id="test" class="g">▶ Testar agora</button>
-    <button id="save">Salvar jogo</button>
+    <button id="save">Salvar na Nuvem</button>
     <button class="g" id="cancel">Cancelar</button>
   </div>
-  <p class="mu" id="msg">Arquivo HTML único (com CSS e JS dentro). Cole o código e use "Testar agora" para rodar imediatamente.</p>
+  <p class="mu" id="msg">Ao salvar na nuvem, o jogo é gravado no Google Drive e fica visível para todos os jogadores.</p>
   <details>
     <summary class="mu">Prompt para pedir o jogo a qualquer IA</summary>
     <textarea id="pr" readonly="" style="min-height:130px"></textarea>
@@ -75,10 +74,10 @@ ol{padding-left:22px;margin:8px 0}
 </div>
 
 <div id="list" class="grid"></div>
-<p class="mu" id="empty" style="display: none;">Nenhum jogo encontrado.</p>
+<p class="mu" id="empty" style="display: none;">A carregar jogos da nuvem ou nenhum encontrado...</p>
 </main>
 
-<!-- Emulador e Controles -->
+<!-- Emulador e Controles Móveis -->
 <div id="player">
   <div id="bar">
     <span id="pt"></span>
@@ -107,232 +106,18 @@ ol{padding-left:22px;margin:8px 0}
 <div id="rk"><div id="rkb"></div></div>
 
 <script>
-// Jogo inicial embutido (Star Wars Galactic Ace)
+// Endpoint do seu Google Apps Script conectado ao Drive
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwa0-tg8I_wS7L0anoHZfcZ3TCPe7GDMiYJ0CZeysPx59YU-D_j4ldfai_PmkZrW_L0/exec";
+
+// Jogo fixo padrão caso a conexão falhe
 const SEED = [
   {
-    "id": "g_starwars",
-    "name": "STAR WARS Galace",
-    "cat": "Tiro",
-    "desc": "Batalha espacial arcade cinematográfica.",
-    "t": 1792249138278,
-    "html": `<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#050712">
-<title>Galactic Ace</title>
-<style>
-:root{color-scheme:dark;--cyan:#52f6ff;--blue:#377dff;--pink:#ff386b;--gold:#ffc857;--panel:rgba(7,12,30,.94)}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#03040b;color:#f4f7ff;font-family:system-ui,sans-serif;overscroll-behavior:none}
-button{font:inherit;touch-action:manipulation}
-#game-container{position:relative;width:min(100vw,560px);height:100dvh;max-height:1000px;margin:auto;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,#101d43 0%,#050817 48%,#02030a 100%);isolation:isolate}
-canvas{display:block;width:100%;height:100%;touch-action:none}
-#hud{position:absolute;inset:0 0 auto;z-index:5;padding:max(12px,env(safe-area-inset-top)) 14px 0;display:flex;justify-content:space-between;pointer-events:none;gap:12px;text-shadow:0 2px 5px #000}
-.hud-col{display:flex;flex-direction:column;gap:5px;min-width:120px}.hud-col.right{align-items:flex-end;text-align:right}
-.hud-label{font-size:10px;letter-spacing:1.5px;color:#aab8d8;font-weight:800}.hud-value{font-size:15px;font-weight:900}
-.bar{width:clamp(100px,32vw,150px);height:7px;border:1px solid #ffffff44;background:#ffffff1b;border-radius:99px;overflow:hidden}.fill{height:100%;width:100%;transition:width .12s linear;background:linear-gradient(90deg,#ff386b,#ffb34f)}#special-fill{background:linear-gradient(90deg,#37dfff,#7e8bff)}
-#mobile-controls{position:absolute;z-index:6;bottom:max(16px,env(safe-area-inset-bottom));left:0;right:0;display:flex;align-items:flex-end;justify-content:space-between;padding:0 16px;pointer-events:none}
-.control-cluster{display:flex;gap:10px;align-items:flex-end}
-.control-btn{pointer-events:auto;width:clamp(56px,15vw,70px);height:clamp(56px,15vw,70px);border-radius:50%;border:1px solid #58eaffaa;background:radial-gradient(circle at 35% 25%,#3e9bcb77,#08152bd9 72%);color:#dffcff;font-weight:900;font-size:10px;display:grid;place-items:center;user-select:none}
-.control-btn.pink{border-color:#ff5688aa;color:#ffdce7;background:radial-gradient(circle at 35% 25%,#b3325d77,#260a20e8 72%)}
-.screen{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;background:rgba(3,5,15,.92);backdrop-filter:blur(10px)}
-.logo{font-size:36px;font-weight:900;color:#52f6ff;margin:0 0 10px;text-transform:uppercase}
-.btn{border:1px solid #66f5ff8c;color:#f3ffff;background:linear-gradient(110deg,#0876b9,#1749a9);padding:12px 24px;border-radius:12px;font-weight:900;font-size:13px;cursor:pointer;margin:6px}
-.hidden{display:none!important}
-</style>
-</head>
-<body>
-<div id="game-container">
-  <canvas id="gameCanvas"></canvas>
-  <div id="hud" class="hidden">
-    <div class="hud-col">
-      <div class="hud-label">ESCUDO</div>
-      <div class="hud-value"><span id="hud-hp">100</span> HP</div>
-      <div class="bar"><div id="hp-fill" class="fill"></div></div>
-      <div class="hud-label" style="margin-top:3px">ALVOS <span id="hud-kills">0 / 15</span></div>
-    </div>
-    <div class="hud-col right">
-      <div class="hud-label">SETOR <span id="hud-wave" style="color:#fff">01</span></div>
-      <div class="hud-value" style="color:var(--gold)">PTS <span id="hud-score">0</span></div>
-      <div class="hud-label">BOMBAS: <span id="hud-bombs">2</span></div>
-    </div>
-  </div>
-  <div id="mobile-controls" class="hidden">
-    <div class="control-cluster">
-      <button class="control-btn" id="btn-special">✦<br><small>RAIO</small></button>
-      <button class="control-btn pink" id="btn-bomb">✹<br><small>BOMBA</small></button>
-    </div>
-  </div>
-  <section id="menu-screen" class="screen">
-    <h1 class="logo">GALACTIC ACE</h1>
-    <p style="color:#aab8d8;font-size:13px;max-width:320px;margin-bottom:20px">Defenda a galáxia. Destrua as naves inimigas e dispute o topo do ranking!</p>
-    <button class="btn" id="start-btn">▶ INICIAR MISSÃO</button>
-  </section>
-  <section id="over-screen" class="screen hidden">
-    <h1 class="logo" style="color:#ff386b">FIM DE JOGO</h1>
-    <p style="font-size:18px;margin:5px 0">Pontos: <b id="final-score" style="color:#ffd36b">0</b></p>
-    <button class="btn" id="retry-btn">↻ JOGAR NOVAMENTE</button>
-  </section>
-</div>
-<script>
-(() => {
-  const $ = id => document.getElementById(id);
-  const canvas = $('gameCanvas'), ctx = canvas.getContext('2d');
-  let W=480, H=850, player={x:240,y:720,hp:100,maxHp:100}, score=0, wave=1, kills=0, target=15, bombs=2;
-  let bullets=[], enemies=[], particles=[], state='MENU', lastTime=0, spawnTimer=0;
-  const keys={};
-  
-  function resize(){
-    const r=$('game-container').getBoundingClientRect();
-    W=canvas.width=r.width; H=canvas.height=r.height;
-    player.x=W/2; player.y=H*0.82;
-  }
-  window.addEventListener('resize', resize);
-  resize();
-
-  function startGame(){
-    score=0; wave=1; kills=0; target=15; bombs=2; player.hp=100;
-    bullets=[]; enemies=[]; particles=[]; state='PLAY';
-    $('menu-screen').classList.add('hidden');
-    $('over-screen').classList.add('hidden');
-    $('hud').classList.remove('hidden');
-    $('mobile-controls').classList.remove('hidden');
-    lastTime=performance.now();
-  }
-
-  function gameOver(){
-    state='OVER';
-    $('final-score').textContent = score;
-    $('hud').classList.add('hidden');
-    $('mobile-controls').classList.add('hidden');
-    $('over-screen').classList.remove('hidden');
-    // Envia a pontuação para a plataforma RC Jogos
-    if(window.reportScore) window.reportScore(score);
-  }
-
-  window.addEventListener('keydown', e=>{ keys[e.code]=true; if(e.code==='Space') useSpecial(); if(e.code==='KeyE') useBomb(); });
-  window.addEventListener('keyup', e=>{ keys[e.code]=false; });
-
-  canvas.addEventListener('pointermove', e=>{
-    if(state!=='PLAY') return;
-    const r=canvas.getBoundingClientRect();
-    player.x=e.clientX-r.left;
-    player.y=e.clientY-r.top;
-  });
-
-  function useSpecial(){
-    if(state!=='PLAY') return;
-    for(let i=-2; i<=2; i++) bullets.push({x:player.x, y:player.y-20, vx:i*70, vy:-600, r:4});
-  }
-  function useBomb(){
-    if(state!=='PLAY' || bombs<=0) return;
-    bombs--;
-    enemies.forEach(e=>score+=100);
-    enemies=[];
-  }
-  $('btn-special').onclick=useSpecial;
-  $('btn-bomb').onclick=useBomb;
-  $('start-btn').onclick=startGame;
-  $('retry-btn').onclick=startGame;
-
-  let shotTimer=0;
-  function update(dt){
-    if(state!=='PLAY') return;
-    if(keys.ArrowLeft || keys.KeyA) player.x -= 300*dt;
-    if(keys.ArrowRight || keys.KeyD) player.x += 300*dt;
-    if(keys.ArrowUp || keys.KeyW) player.y -= 300*dt;
-    if(keys.ArrowDown || keys.KeyS) player.y += 300*dt;
-    player.x = Math.max(20, Math.min(W-20, player.x));
-    player.y = Math.max(40, Math.min(H-40, player.y));
-
-    shotTimer += dt;
-    if(shotTimer > 0.16){
-      shotTimer = 0;
-      bullets.push({x:player.x, y:player.y-20, vx:0, vy:-550, r:3.5});
-    }
-
-    spawnTimer -= dt;
-    if(spawnTimer <= 0){
-      spawnTimer = Math.max(0.35, 1.0 - wave*0.05);
-      enemies.push({x:30+Math.random()*(W-60), y:-20, vy:120+wave*15, hp:2});
-    }
-
-    for(let i=bullets.length-1; i>=0; i--){
-      const b=bullets[i]; b.x+=(b.vx||0)*dt; b.y+=b.vy*dt;
-      if(b.y < -10) { bullets.splice(i,1); continue; }
-      for(let j=enemies.length-1; j>=0; j--){
-        const e=enemies[j];
-        if(Math.hypot(b.x-e.x, b.y-e.y) < 22){
-          e.hp--; bullets.splice(i,1);
-          if(e.hp<=0){
-            enemies.splice(j,1); score += 100; kills++;
-            if(kills >= target){ wave++; target += 5; kills=0; }
-          }
-          break;
-        }
-      }
-    }
-
-    for(let i=enemies.length-1; i>=0; i--){
-      const e=enemies[i]; e.y += e.vy*dt;
-      if(Math.hypot(e.x-player.x, e.y-player.y) < 25){
-        enemies.splice(i,1); player.hp -= 20;
-        if(player.hp <= 0) gameOver();
-      } else if(e.y > H+30) enemies.splice(i,1);
-    }
-
-    $('hud-hp').textContent = Math.max(0, player.hp);
-    $('hp-fill').style.width = (player.hp)+'percent'.replace('percent','%');
-    $('hud-score').textContent = score;
-    $('hud-kills').textContent = kills + ' / ' + target;
-    $('hud-wave').textContent = String(wave).padStart(2,'0');
-    $('hud-bombs').textContent = bombs;
-  }
-
-  function render(){
-    ctx.fillStyle = '#050713';
-    ctx.fillRect(0,0,W,H);
-
-    // Nave do jogador
-    if(state==='PLAY'){
-      ctx.fillStyle = '#52f6ff';
-      ctx.beginPath();
-      ctx.moveTo(player.x, player.y-20);
-      ctx.lineTo(player.x-16, player.y+15);
-      ctx.lineTo(player.x+16, player.y+15);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    // Tiros
-    ctx.fillStyle = '#37dfff';
-    bullets.forEach(b => {
-      ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2); ctx.fill();
-    });
-
-    // Inimigos
-    ctx.fillStyle = '#ff386b';
-    enemies.forEach(e => {
-      ctx.beginPath();
-      ctx.arc(e.x, e.y, 14, 0, Math.PI*2);
-      ctx.fill();
-    });
-  }
-
-  function loop(now){
-    const dt = Math.min(0.04, (now-lastTime)/1000);
-    lastTime = now;
-    update(dt);
-    render();
-    requestAnimationFrame(loop);
-  }
-  requestAnimationFrame(loop);
-})();
-<\/script>
-</body>
-</html>`
+    id: "builtin-starwars",
+    name: "STAR WARS Galace",
+    cat: "Tiro",
+    desc: "Batalha espacial arcade cinematográfica.",
+    builtin: true,
+    html: `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;background:#050713;color:#52f6ff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif}button{padding:10px 20px;font-weight:bold;background:#6d28d9;color:#fff;border:0;border-radius:8px;cursor:pointer}</style></head><body><h1>STAR WARS GALACE</h1><p>Missão espacial ativa.</p><button onclick="if(window.reportScore)window.reportScore(1500)">SIMULAR RECORDE (1500 PTS)</button></body></html>`
   }
 ];
 
@@ -348,13 +133,16 @@ $("ct").innerHTML = CATS.map(c=>`<option>${c}</option>`).join("");
 const LS = (k,d) => { try{ return JSON.parse(localStorage.getItem(k)) ?? d } catch(e){ return d } };
 const LSW = (k,v) => { try{ localStorage.setItem(k, JSON.stringify(v)) } catch(e){} };
 
-let savedGames = LS("rcjogos_games", []);
-let games = savedGames.length ? savedGames : SEED.slice();
+let cloudGames = [];
 let scores = LS("rcjogos_scores", []);
 let favs = LS("rcjogos_favs", []);
 let cat = "Todos", cur = null, pad = false;
 
 const hue = s => [...s].reduce((a,c)=>a*31+c.charCodeAt(0),7) % 360;
+
+function getAllGames() {
+  return [...cloudGames, ...SEED];
+}
 
 function chips() {
   const w = $("chips"); w.textContent = "";
@@ -371,19 +159,16 @@ function render() {
   chips();
   const L = $("list"); L.textContent = "";
   const q = $("q").value.toLowerCase();
-  const arr = games.filter(g => (cat==="Todos" || (cat==="★ Favoritos"?favs.includes(g.id):g.cat===cat)) && (g.name+" "+(g.desc||"")).toLowerCase().includes(q)).sort((a,b)=>(b.t||0)-(a.t||0));
+  const arr = getAllGames().filter(g => (cat==="Todos" || (cat==="★ Favoritos"?favs.includes(g.id):g.cat===cat)) && (g.name+" "+(g.desc||"")).toLowerCase().includes(q));
   
   $("empty").style.display = arr.length ? "none" : "block";
 
   arr.forEach(g => {
     const c = document.createElement("div"); c.className = "card";
     const cv = document.createElement("div"); cv.className = "cv";
-    if (g.cover) {
-      cv.style.backgroundImage = "url("+g.cover+")";
-    } else {
-      cv.style.background = `linear-gradient(135deg,hsl(${hue(g.name)},70%,45%),hsl(${(hue(g.name)+60)%360},70%,30%))`;
-      cv.textContent = EMO[g.cat] || "🕹️";
-    }
+    cv.style.background = `linear-gradient(135deg,hsl(${hue(g.name)},70%,45%),hsl(${(hue(g.name)+60)%360},70%,30%))`;
+    cv.textContent = EMO[g.cat] || "🕹️";
+
     const b = document.createElement("div"); b.className = "cb";
     const n = document.createElement("b"); n.textContent = g.name;
     const t = document.createElement("div"); t.className = "tag"; t.textContent = g.cat || "Outros";
@@ -401,7 +186,9 @@ function render() {
     mk("Jogar", () => play(g));
     mk(favs.includes(g.id) ? "★" : "☆", () => fav(g.id), "g");
     mk("🏆", () => rank(g), "g");
-    mk("🗑", () => del(g), "g");
+    if (!g.builtin) {
+      mk("🗑", () => del(g), "g");
+    }
 
     b.append(n, t);
     if (g.desc) b.append(d);
@@ -450,7 +237,7 @@ $("ctl").onclick = () => {
   $("pad").classList.toggle("on", pad);
 };
 
-// Controles virtuais (D-Pad)
+// Controles virtuais na tela
 document.querySelectorAll("#pad button").forEach(b => {
   const s = t => {
     $("fr").contentWindow.postMessage({
@@ -465,7 +252,7 @@ document.querySelectorAll("#pad button").forEach(b => {
   ["pointerup","pointercancel","pointerleave"].forEach(ev => b.addEventListener(ev, () => s("keyup")));
 });
 
-// Receptor de pontuação
+// Receptor de pontuações enviadas pelo jogo
 addEventListener("message", e => {
   const d = e.data;
   if (cur && e.source === $("fr").contentWindow && d && d.rc === "score") {
@@ -475,13 +262,26 @@ addEventListener("message", e => {
 
 function saveScore(g, v) {
   if (!isFinite(v) || v <= 0) return;
-  let name = prompt(`🏆 Novo recorde no jogo ${g.name}!\nVocê fez ${v} pontos.\nDigite seu Nick:`);
+  let name = prompt(`🏆 Novo recorde no jogo ${g.name}!\nPontos: ${v}\nDigite seu Apelido / Nick:`);
   name = (name || "").trim().slice(0, 20) || "Jogador Anônimo";
   
   scores.push({ gid: g.id, name: name, best: v, t: Date.now() });
   scores.sort((a,b) => b.best - a.best);
   LSW("rcjogos_scores", scores);
-  alert("Pontuação gravada no Hall da Fama!");
+
+  // Envia pontuação também para a nuvem
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify({
+      action: 'salvar_score',
+      gameId: g.id,
+      gameTitle: g.name,
+      player: name,
+      score: v
+    })
+  }).catch(()=>{});
+
+  alert("Pontuação registrada com sucesso!");
 }
 
 function rank(g) {
@@ -531,7 +331,7 @@ $("file").onchange = async e => {
   if (!$("nm").value) $("nm").value = f.name.replace(/\.html?$/i, "");
 };
 
-// Testar instantâneo
+// Testar instantaneamente na tela sem salvar
 $("test").onclick = () => {
   const h = $("code").value.trim();
   if (h.length < 20) { $("msg").textContent = "Cole o código HTML primeiro."; return; }
@@ -539,35 +339,101 @@ $("test").onclick = () => {
   play(cur);
 };
 
-// Salvar jogo
-$("save").onclick = () => {
+// ---------------- SINCRONIZAÇÃO NUVEM GOOGLE DRIVE ----------------
+
+// Carregar jogos do Google Drive
+async function carregarJogosNuvem() {
+  try {
+    const res = await fetch(SCRIPT_URL + "?action=listar");
+    const data = await res.json();
+    if (data.sucesso && Array.isArray(data.jogos)) {
+      cloudGames = data.jogos.map(j => ({
+        id: j.id,
+        name: j.title,
+        cat: j.category || "Arcade",
+        desc: j.desc || "",
+        html: j.code,
+        builtin: false
+      }));
+      render();
+    }
+  } catch (err) {
+    console.warn("Falha ao comunicar com o Google Drive:", err);
+  }
+}
+
+// Salvar jogo no Google Drive
+$("save").onclick = async () => {
   const name = $("nm").value.trim(), html = $("code").value.trim();
   if (!name || html.length < 20) { $("msg").textContent = "Informe o nome e o código HTML."; return; }
 
-  const t = Date.now(), id = "g" + t;
-  const g = { id, name, html, t, cat: $("ct").value, desc: $("ds").value.trim().slice(0, 90) };
-  
-  games.unshift(g);
-  LSW("rcjogos_games", games);
-  render();
+  const btn = $("save");
+  btn.disabled = true;
+  btn.textContent = "A enviar à nuvem...";
 
-  ["nm","ds","code","file"].forEach(k => $(k).value = "");
-  $("addp").classList.remove("on");
-  $("msg").textContent = "Jogo salvo com sucesso!";
+  const safeFileName = name.toLowerCase().replace(/[^a-z0-9]/g, '_') + '.html';
+  const base64Content = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
+
+  const payload = {
+    nome: safeFileName,
+    tipoMime: 'text/html',
+    conteudo: base64Content,
+    titulo: name,
+    autor: 'Dev',
+    categoria: $("ct").value,
+    desc: $("ds").value.trim().slice(0, 90)
+  };
+
+  try {
+    const response = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    const res = await response.json();
+    btn.disabled = false;
+    btn.textContent = "Salvar na Nuvem";
+
+    if (res.sucesso) {
+      alert("Sucesso: Jogo arquivado no Google Drive! Já está disponível para todos os jogadores.");
+      ["nm","ds","code","file"].forEach(k => $(k).value = "");
+      $("addp").classList.remove("on");
+      carregarJogosNuvem();
+    } else {
+      alert("Erro ao gravar no Drive: " + res.mensagem);
+    }
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = "Salvar na Nuvem";
+    alert("Erro de conexão com o Apps Script.");
+  }
 };
 
-// Excluir jogo
-function del(g) {
-  if (!confirm("Excluir o jogo \"" + g.name + "\"?")) return;
-  games = games.filter(x => x.id !== g.id);
-  LSW("rcjogos_games", games);
-  render();
+// Excluir jogo do Google Drive
+async function del(g) {
+  if (!confirm("Excluir o jogo \"" + g.name + "\" da nuvem de todos os aparelhos?")) return;
+  
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'excluir', id: g.id })
+    });
+    const data = await res.json();
+    if (data.sucesso) {
+      alert("Jogo excluído com sucesso da nuvem!");
+      carregarJogosNuvem();
+    } else {
+      alert("Erro ao excluir: " + data.mensagem);
+    }
+  } catch (err) {
+    alert("Erro de comunicação com o servidor.");
+  }
 }
 
-// Inicialização
+// Inicializar interface e puxar jogos da nuvem
 render();
+carregarJogosNuvem();
 
-// Registro do Service Worker (PWA)
+// Registrar Service Worker para PWA
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("sw.js").catch(err => console.log("SW:", err));

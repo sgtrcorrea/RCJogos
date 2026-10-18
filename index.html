@@ -30,7 +30,7 @@ textarea{min-height:130px;font:13px monospace}.mu{color:var(--mu);font-size:14px
 #player{position:fixed;inset:0;background:#000;display:none;flex-direction:column;z-index:9}#player.on{display:flex}
 #bar{display:flex;gap:6px;align-items:center;padding:8px 12px;padding-top:calc(8px + env(safe-area-inset-top,0px));background:#120e22;color:#fff}
 #bar span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-iframe{flex:1;border:0;width:100%;background:#fff;touch-action:none}
+iframe{flex:1;border:0;width:100%;background:#060913;touch-action:none}
 #pad{display:none;position:absolute;left:0;right:0;bottom:0;padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));justify-content:space-between;pointer-events:none}
 #pad.on{display:flex}#pad>div{display:grid;gap:6px;pointer-events:auto}
 #dp{grid-template-columns:repeat(3,52px);grid-template-rows:repeat(3,52px)}#ab{grid-template-columns:repeat(2,64px);align-self:end}
@@ -109,15 +109,600 @@ ol{padding-left:22px;margin:8px 0}
 // Endpoint do seu Google Apps Script conectado ao Drive
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwa0-tg8I_wS7L0anoHZfcZ3TCPe7GDMiYJ0CZeysPx59YU-D_j4ldfai_PmkZrW_L0/exec";
 
-// Jogo fixo padrão caso a conexão falhe
+// Jogo nativo permanente: CYBERFLOW PUZZLE com suporte ao reportScore
 const SEED = [
   {
-    id: "builtin-starwars",
-    name: "STAR WARS Galace",
-    cat: "Tiro",
-    desc: "Batalha espacial arcade cinematográfica.",
+    id: "builtin-cyberflow",
+    name: "CyberFlow: Conecte Cores",
+    cat: "Puzzle",
+    desc: "Ligue os pares de neon e preencha 100% da grade lógica.",
     builtin: true,
-    html: `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;background:#050713;color:#52f6ff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif}button{padding:10px 20px;font-weight:bold;background:#6d28d9;color:#fff;border:0;border-radius:8px;cursor:pointer}</style></head><body><h1>STAR WARS GALACE</h1><p>Missão espacial ativa.</p><button onclick="if(window.reportScore)window.reportScore(1500)">SIMULAR RECORDE (1500 PTS)</button></body></html>`
+    html: `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+  :root {
+    --bg-base: #060913;
+    --panel-bg: rgba(15, 23, 42, 0.85);
+    --panel-border: rgba(56, 189, 248, 0.28);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+  body {
+    background: radial-gradient(circle at 50% 15%, #0f172a, #060913 85%);
+    color: var(--text-main);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    overflow-x: hidden;
+  }
+  .app-wrapper {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 4px;
+  }
+  .logo-badge h1 {
+    font-size: 1.4rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .difficulty-tag { font-size: 0.75rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; }
+  .controls-cluster { display: flex; gap: 6px; }
+  .btn-icon {
+    background: rgba(30, 41, 59, 0.85);
+    border: 1px solid var(--panel-border);
+    color: #e2e8f0;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.05rem;
+  }
+  .dashboard-bar {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 8px 12px;
+    backdrop-filter: blur(10px);
+  }
+  .metric-box { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .metric-label { font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; }
+  .metric-val { font-size: 1.1rem; font-weight: 800; color: #ffffff; margin-top: 1px; }
+  .board-container {
+    position: relative;
+    width: 100%;
+    max-width: 580px;
+    aspect-ratio: 1 / 1;
+    background: #090e17;
+    border-radius: 20px;
+    border: 2px solid rgba(56, 189, 248, 0.35);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.85), 0 0 25px rgba(56, 189, 248, 0.15);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  canvas { width: 100%; height: 100%; display: block; touch-action: none; cursor: pointer; }
+  .actions-grid { width: 100%; max-width: 580px; display: flex; gap: 8px; }
+  .btn-action {
+    flex: 1;
+    padding: 11px 14px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+  .btn-secondary { background: rgba(30, 41, 59, 0.85); color: #cbd5e1; border: 1px solid var(--panel-border); }
+  .btn-primary { background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; box-shadow: 0 4px 14px rgba(37,99,235,0.4); }
+  .modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(6, 9, 19, 0.9);
+    backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    z-index: 50;
+  }
+  .modal-backdrop.active { opacity: 1; pointer-events: auto; }
+  .modal-sheet {
+    background: #0f172a;
+    border: 1px solid rgba(56, 189, 248, 0.45);
+    border-radius: 18px;
+    padding: 22px;
+    width: 100%;
+    max-width: 330px;
+    text-align: center;
+  }
+  .modal-sheet h2 { font-size: 1.35rem; color: #38bdf8; margin-bottom: 4px; font-weight: 800; }
+  .modal-sheet p { font-size: 0.85rem; color: #94a3b8; margin-bottom: 16px; line-height: 1.4; }
+  .star-rating { font-size: 1.8rem; margin: 8px 0 12px; color: #f59e0b; }
+  .levels-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 4px;
+    margin-bottom: 14px;
+  }
+  .lvl-btn {
+    aspect-ratio: 1;
+    background: #1e293b;
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 8px;
+    color: #cbd5e1;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lvl-btn.active-lvl { border-color: #38bdf8; background: #0284c7; color: #fff; }
+</style>
+</head>
+<body>
+<div class="app-wrapper">
+  <header>
+    <div class="logo-badge">
+      <h1>CYBERFLOW</h1>
+      <div class="difficulty-tag" id="tierTag">Nível 1 • 5x5</div>
+    </div>
+    <div class="controls-cluster">
+      <button id="btnLevels" class="btn-icon" title="Fases">☰</button>
+      <button id="btnSound" class="btn-icon" title="Som">🔊</button>
+    </div>
+  </header>
+  <div class="dashboard-bar">
+    <div class="metric-box"><span class="metric-label">Fase</span><span id="levelVal" class="metric-val">1/10</span></div>
+    <div class="metric-box"><span class="metric-label">Grade</span><span id="gridVal" class="metric-val">5×5</span></div>
+    <div class="metric-box"><span class="metric-label">Pares</span><span id="flowVal" class="metric-val">0/3</span></div>
+    <div class="metric-box"><span class="metric-label">Preenchido</span><span id="pipeVal" class="metric-val">0%</span></div>
+  </div>
+  <div class="board-container">
+    <canvas id="gameCanvas" width="800" height="800"></canvas>
+    <div id="winModal" class="modal-backdrop">
+      <div class="modal-sheet">
+        <h2>100% COMPLETO!</h2>
+        <div class="star-rating">★★★</div>
+        <p id="winScoreTxt">Conexão total estabelecida!</p>
+        <button id="btnNextWin" class="btn-action btn-primary" style="width: 100%;">Próxima Fase →</button>
+      </div>
+    </div>
+    <div id="levelSelectModal" class="modal-backdrop">
+      <div class="modal-sheet">
+        <h2>SELETOR DE FASES</h2>
+        <p>Escolha um nível para jogar:</p>
+        <div class="levels-grid" id="levelsGridContainer"></div>
+        <button id="btnCloseLevels" class="btn-action btn-secondary" style="width: 100%;">Voltar</button>
+      </div>
+    </div>
+  </div>
+  <div class="actions-grid">
+    <button id="btnReset" class="btn-action btn-secondary">↺ Reiniciar</button>
+    <button id="btnPrev" class="btn-action btn-secondary">← Anterior</button>
+    <button id="btnNext" class="btn-action btn-primary">Próxima →</button>
+  </div>
+</div>
+<script>
+const PALETTE = [
+  { id: 1, name: 'Red',    hex: '#f43f5e', glow: 'rgba(244, 63, 94, 0.75)' },
+  { id: 2, name: 'Cyan',   hex: '#06b6d4', glow: 'rgba(6, 182, 212, 0.75)' },
+  { id: 3, name: 'Amber',  hex: '#f59e0b', glow: 'rgba(245, 158, 11, 0.75)' },
+  { id: 4, name: 'Green',  hex: '#10b981', glow: 'rgba(16, 185, 129, 0.75)' },
+  { id: 5, name: 'Purple', hex: '#a855f7', glow: 'rgba(168, 85, 247, 0.75)' },
+  { id: 6, name: 'Orange', hex: '#f97316', glow: 'rgba(249, 115, 22, 0.75)' }
+];
+const LEVELS = [
+  { tier: 'Iniciante', size: 5, dots: [{ color: 1, r: 0, c: 0 }, { color: 1, r: 4, c: 0 }, { color: 2, r: 0, c: 1 }, { color: 2, r: 4, c: 1 }, { color: 3, r: 0, c: 2 }, { color: 3, r: 4, c: 4 }] },
+  { tier: 'Iniciante', size: 5, dots: [{ color: 1, r: 0, c: 0 }, { color: 1, r: 0, c: 4 }, { color: 2, r: 1, c: 0 }, { color: 2, r: 4, c: 0 }, { color: 3, r: 4, c: 1 }, { color: 3, r: 4, c: 4 }, { color: 4, r: 1, c: 4 }, { color: 4, r: 1, c: 1 }] },
+  { tier: 'Iniciante', size: 5, dots: [{ color: 1, r: 0, c: 0 }, { color: 1, r: 3, c: 2 }, { color: 4, r: 0, c: 3 }, { color: 4, r: 4, c: 1 }, { color: 2, r: 1, c: 0 }, { color: 2, r: 4, c: 0 }, { color: 3, r: 1, c: 1 }, { color: 3, r: 3, c: 1 }, { color: 5, r: 1, c: 3 }, { color: 5, r: 3, c: 3 }] },
+  { tier: 'Intermediário', size: 6, dots: [{ color: 1, r: 5, c: 0 }, { color: 1, r: 5, c: 5 }, { color: 2, r: 5, c: 1 }, { color: 2, r: 5, c: 4 }, { color: 3, r: 1, c: 1 }, { color: 3, r: 1, c: 2 }, { color: 4, r: 1, c: 3 }, { color: 4, r: 1, c: 4 }] },
+  { tier: 'Intermediário', size: 6, dots: [{ color: 1, r: 0, c: 0 }, { color: 1, r: 3, c: 5 }, { color: 2, r: 1, c: 0 }, { color: 2, r: 5, c: 3 }, { color: 3, r: 5, c: 4 }, { color: 3, r: 4, c: 5 }, { color: 4, r: 1, c: 1 }, { color: 4, r: 4, c: 1 }, { color: 5, r: 2, c: 1 }, { color: 5, r: 3, c: 1 }] },
+  { tier: 'Intermediário', size: 6, dots: [{ color: 1, r: 0, c: 0 }, { color: 1, r: 5, c: 0 }, { color: 2, r: 0, c: 1 }, { color: 2, r: 2, c: 5 }, { color: 3, r: 5, c: 1 }, { color: 3, r: 3, c: 5 }, { color: 4, r: 1, c: 1 }, { color: 4, r: 4, c: 1 }, { color: 5, r: 1, c: 4 }, { color: 5, r: 4, c: 4 }, { color: 6, r: 1, c: 2 }, { color: 6, r: 4, c: 2 }] },
+  { tier: 'Avançado', size: 7, dots: [{ color: 1, r: 0, c: 0 }, { color: 1, r: 0, c: 6 }, { color: 2, r: 0, c: 1 }, { color: 2, r: 0, c: 5 }, { color: 3, r: 1, c: 1 }, { color: 3, r: 1, c: 5 }, { color: 4, r: 1, c: 2 }, { color: 4, r: 1, c: 4 }, { color: 5, r: 2, c: 2 }, { color: 5, r: 3, c: 3 }] },
+  { tier: 'Avançado', size: 7, dots: [{ color: 1, r: 0, c: 0 }, { color: 1, r: 6, c: 0 }, { color: 2, r: 0, c: 1 }, { color: 2, r: 2, c: 6 }, { color: 3, r: 6, c: 1 }, { color: 3, r: 3, c: 6 }, { color: 4, r: 1, c: 1 }, { color: 4, r: 5, c: 3 }, { color: 5, r: 1, c: 5 }, { color: 5, r: 4, c: 4 }, { color: 6, r: 1, c: 2 }, { color: 6, r: 4, c: 2 }] },
+  { tier: 'Avançado', size: 7, dots: [{ color: 1, r: 0, c: 0 }, { color: 1, r: 4, c: 3 }, { color: 2, r: 0, c: 4 }, { color: 2, r: 6, c: 6 }, { color: 3, r: 1, c: 1 }, { color: 3, r: 6, c: 3 }, { color: 4, r: 1, c: 2 }, { color: 4, r: 5, c: 4 }, { color: 5, r: 1, c: 4 }, { color: 5, r: 1, c: 5 }, { color: 6, r: 2, c: 1 }, { color: 6, r: 4, c: 2 }] },
+  { tier: 'Mestre', size: 7, dots: [{ color: 1, r: 0, c: 0 }, { color: 1, r: 1, c: 0 }, { color: 4, r: 1, c: 1 }, { color: 4, r: 4, c: 3 }, { color: 2, r: 1, c: 4 }, { color: 2, r: 5, c: 2 }, { color: 3, r: 2, c: 1 }, { color: 3, r: 5, c: 1 }, { color: 6, r: 2, c: 2 }, { color: 6, r: 4, c: 2 }, { color: 5, r: 2, c: 4 }, { color: 5, r: 4, c: 4 }] }
+];
+
+class AudioEngine {
+  constructor() {
+    this.ctx = null;
+    this.muted = false;
+    this.notes = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25];
+  }
+  init() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) this.ctx = new AudioCtx();
+    }
+    if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+  }
+  playTone(step) {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.frequency.setValueAtTime(this.notes[step % this.notes.length], this.ctx.currentTime);
+    gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.12);
+  }
+  playVictory() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+    [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.frequency.setValueAtTime(freq, this.ctx.currentTime + (idx * 0.08));
+      gain.gain.setValueAtTime(0.1, this.ctx.currentTime + (idx * 0.08));
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + (idx * 0.08) + 0.35);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(this.ctx.currentTime + (idx * 0.08));
+      osc.stop(this.ctx.currentTime + (idx * 0.08) + 0.35);
+    });
+  }
+}
+
+const sound = new AudioEngine();
+let currentLvl = 0;
+let gridSize = 5;
+let paths = {};
+let completedColors = new Set();
+let isDrawing = false;
+let activeColor = null;
+let totalCumulativeScore = 0;
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const LOGICAL_RESOLUTION = 800;
+
+function getColor(id) { return PALETTE.find(c => c.id === id) || PALETTE[0]; }
+
+function initLevel(index) {
+  currentLvl = (index + LEVELS.length) % LEVELS.length;
+  const level = LEVELS[currentLvl];
+  gridSize = level.size;
+  paths = {};
+  completedColors.clear();
+  isDrawing = false;
+  activeColor = null;
+
+  const unique = [...new Set(level.dots.map(d => d.color))];
+  unique.forEach(c => { paths[c] = []; });
+
+  document.getElementById('winModal').classList.remove('active');
+  document.getElementById('tierTag').textContent = "Nível " + (currentLvl + 1) + " • " + level.tier;
+  updateUI();
+  render();
+}
+
+function getCell(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = LOGICAL_RESOLUTION / rect.width;
+  const scaleY = LOGICAL_RESOLUTION / rect.height;
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  const x = (clientX - rect.left) * scaleX;
+  const y = (clientY - rect.top) * scaleY;
+  const cellSize = LOGICAL_RESOLUTION / gridSize;
+  const c = Math.floor(x / cellSize);
+  const r = Math.floor(y / cellSize);
+  if (r >= 0 && r < gridSize && c >= 0 && c < gridSize) return { r, c };
+  return null;
+}
+
+function getDotAt(r, c) {
+  return LEVELS[currentLvl].dots.find(d => d.r === r && d.c === c) || null;
+}
+
+function isAdjacent(a, b) {
+  const dr = Math.abs(a.r - b.r);
+  const dc = Math.abs(a.c - b.c);
+  return (dr === 1 && dc === 0) || (dr === 0 && dc === 1);
+}
+
+canvas.addEventListener('pointerdown', (e) => {
+  sound.init();
+  canvas.setPointerCapture(e.pointerId);
+  const cell = getCell(e);
+  if (!cell) return;
+  const dot = getDotAt(cell.r, cell.c);
+  if (dot) {
+    activeColor = dot.color;
+    isDrawing = true;
+    paths[activeColor] = [{ r: cell.r, c: cell.c }];
+    completedColors.delete(activeColor);
+    sound.playTone(1);
+  } else {
+    for (const [colStr, path] of Object.entries(paths)) {
+      const cId = parseInt(colStr);
+      const idx = path.findIndex(p => p.r === cell.r && p.c === cell.c);
+      if (idx !== -1) {
+        activeColor = cId;
+        isDrawing = true;
+        paths[activeColor] = path.slice(0, idx + 1);
+        completedColors.delete(activeColor);
+        sound.playTone(idx + 1);
+        break;
+      }
+    }
+  }
+  updateUI();
+  render();
+});
+
+canvas.addEventListener('pointermove', (e) => {
+  if (!isDrawing || !activeColor) return;
+  const cell = getCell(e);
+  if (!cell) return;
+  const curPath = paths[activeColor];
+  const last = curPath[curPath.length - 1];
+  if (cell.r === last.r && cell.c === last.c) return;
+  if (!isAdjacent(cell, last)) return;
+
+  if (curPath.length > 1) {
+    const prev = curPath[curPath.length - 2];
+    if (cell.r === prev.r && cell.c === prev.c) {
+      curPath.pop();
+      completedColors.delete(activeColor);
+      sound.playTone(curPath.length);
+      updateUI();
+      render();
+      return;
+    }
+  }
+
+  if (completedColors.has(activeColor)) return;
+  const targetDot = getDotAt(cell.r, cell.c);
+  if (targetDot && targetDot.color !== activeColor) return;
+
+  if (targetDot && targetDot.color === activeColor) {
+    const startDot = curPath[0];
+    if (startDot.r !== cell.r || startDot.c !== cell.c) {
+      curPath.push({ r: cell.r, c: cell.c });
+      completedColors.add(activeColor);
+      isDrawing = false;
+      sound.playTone(7);
+      checkVictory();
+      updateUI();
+      render();
+      return;
+    }
+  }
+
+  const selfIdx = curPath.findIndex(p => p.r === cell.r && p.c === cell.c);
+  if (selfIdx !== -1) {
+    paths[activeColor] = curPath.slice(0, selfIdx + 1);
+    updateUI();
+    render();
+    return;
+  }
+
+  for (const [otherStr, otherPath] of Object.entries(paths)) {
+    const oId = parseInt(otherStr);
+    if (oId !== activeColor) {
+      const cutIdx = otherPath.findIndex(p => p.r === cell.r && p.c === cell.c);
+      if (cutIdx !== -1) {
+        paths[oId] = otherPath.slice(0, cutIdx);
+        completedColors.delete(oId);
+      }
+    }
+  }
+
+  curPath.push({ r: cell.r, c: cell.c });
+  sound.playTone(curPath.length);
+  updateUI();
+  render();
+});
+
+function stopDrawing(e) {
+  if (isDrawing) {
+    isDrawing = false;
+    activeColor = null;
+    if (e && e.pointerId && canvas.hasPointerCapture(e.pointerId)) {
+      canvas.releasePointerCapture(e.pointerId);
+    }
+    render();
+  }
+}
+canvas.addEventListener('pointerup', stopDrawing);
+canvas.addEventListener('pointercancel', stopDrawing);
+
+function checkVictory() {
+  const level = LEVELS[currentLvl];
+  const uniqueColors = new Set(level.dots.map(d => d.color));
+  const allConnected = uniqueColors.size === completedColors.size;
+
+  let filled = 0;
+  for (const p of Object.values(paths)) filled += p.length;
+  const fullGrid = filled >= (gridSize * gridSize);
+
+  if (allConnected && fullGrid) {
+    setTimeout(() => {
+      sound.playVictory();
+      const levelScore = (currentLvl + 1) * 250;
+      totalCumulativeScore += levelScore;
+      
+      // Comunicação nativa com o Ranking da plataforma RC Jogos
+      if (window.reportScore) {
+        window.reportScore(totalCumulativeScore);
+      }
+
+      document.getElementById('winScoreTxt').textContent = "Recorde total acumulado: " + totalCumulativeScore + " pts!";
+      document.getElementById('winModal').classList.add('active');
+    }, 150);
+  }
+}
+
+function updateUI() {
+  const level = LEVELS[currentLvl];
+  const uniqueColors = new Set(level.dots.map(d => d.color));
+  document.getElementById('levelVal').textContent = (currentLvl + 1) + "/" + LEVELS.length;
+  document.getElementById('gridVal').textContent = gridSize + "×" + gridSize;
+  document.getElementById('flowVal').textContent = completedColors.size + "/" + uniqueColors.size;
+
+  let filled = 0;
+  for (const p of Object.values(paths)) filled += p.length;
+  const pct = Math.min(100, Math.round((filled / (gridSize * gridSize)) * 100));
+  document.getElementById('pipeVal').textContent = pct + "%";
+}
+
+function render() {
+  const width = LOGICAL_RESOLUTION;
+  const cellSize = width / gridSize;
+  ctx.clearRect(0, 0, width, width);
+
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 2.5;
+  for (let i = 0; i <= gridSize; i++) {
+    ctx.beginPath(); ctx.moveTo(i * cellSize, 0); ctx.lineTo(i * cellSize, width); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, i * cellSize); ctx.lineTo(width, i * cellSize); ctx.stroke();
+  }
+
+  for (const [colStr, path] of Object.entries(paths)) {
+    if (path.length <= 1) continue;
+    const colorId = parseInt(colStr);
+    const colDef = getColor(colorId);
+
+    ctx.beginPath();
+    for (let i = 0; i < path.length; i++) {
+      const x = (path[i].c + 0.5) * cellSize;
+      const y = (path[i].r + 0.5) * cellSize;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = colDef.hex;
+    ctx.shadowColor = colDef.hex;
+    ctx.shadowBlur = 18;
+    ctx.lineWidth = cellSize * 0.44;
+    ctx.stroke();
+
+    ctx.beginPath();
+    for (let i = 0; i < path.length; i++) {
+      const x = (path[i].c + 0.5) * cellSize;
+      const y = (path[i].r + 0.5) * cellSize;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = cellSize * 0.14;
+    ctx.shadowBlur = 0;
+    ctx.stroke();
+  }
+
+  ctx.shadowBlur = 0;
+  const level = LEVELS[currentLvl];
+  level.dots.forEach(dot => {
+    const colDef = getColor(dot.color);
+    const cx = (dot.c + 0.5) * cellSize;
+    const cy = (dot.r + 0.5) * cellSize;
+    const isDone = completedColors.has(dot.color);
+
+    if (isDone) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, cellSize * 0.44, 0, Math.PI * 2);
+      ctx.fillStyle = colDef.glow;
+      ctx.fill();
+    }
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, cellSize * 0.34, 0, Math.PI * 2);
+    ctx.fillStyle = colDef.hex;
+    ctx.shadowColor = colDef.hex;
+    ctx.shadowBlur = 14;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, cellSize * 0.12, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+  });
+}
+
+function renderLevelsGrid() {
+  const container = document.getElementById('levelsGridContainer');
+  container.innerHTML = '';
+  LEVELS.forEach((_, idx) => {
+    const btn = document.createElement('button');
+    btn.className = "lvl-btn " + (idx === currentLvl ? 'active-lvl' : '');
+    btn.textContent = idx + 1;
+    btn.onclick = () => {
+      initLevel(idx);
+      document.getElementById('levelSelectModal').classList.remove('active');
+    };
+    container.appendChild(btn);
+  });
+}
+
+document.getElementById('btnReset').onclick = () => initLevel(currentLvl);
+document.getElementById('btnPrev').onclick = () => initLevel(currentLvl - 1);
+document.getElementById('btnNext').onclick = () => initLevel(currentLvl + 1);
+document.getElementById('btnNextWin').onclick = () => initLevel(currentLvl + 1);
+
+document.getElementById('btnLevels').onclick = () => {
+  renderLevelsGrid();
+  document.getElementById('levelSelectModal').classList.add('active');
+};
+document.getElementById('btnCloseLevels').onclick = () => {
+  document.getElementById('levelSelectModal').classList.remove('active');
+};
+
+const btnSound = document.getElementById('btnSound');
+btnSound.onclick = () => {
+  sound.muted = !sound.muted;
+  btnSound.textContent = sound.muted ? '🔇' : '🔊';
+};
+
+initLevel(0);
+<\/script>
+</body>
+</html>`
   }
 ];
 
@@ -216,7 +801,8 @@ function play(g) {
   $("fr").srcdoc = build(g.html);
   $("player").classList.add("on");
   document.body.classList.add("lock");
-  pad = ("ontouchstart" in window);
+  // O Cyberflow usa toque nativo na tela, logo não precisa do D-Pad arcade cobrindo
+  pad = (g.id !== "builtin-cyberflow" && "ontouchstart" in window);
   $("pad").classList.toggle("on", pad);
 }
 
@@ -252,7 +838,7 @@ document.querySelectorAll("#pad button").forEach(b => {
   ["pointerup","pointercancel","pointerleave"].forEach(ev => b.addEventListener(ev, () => s("keyup")));
 });
 
-// Receptor de pontuações enviadas pelo jogo
+// Receptor de pontuações enviadas pelo jogo (postMessage)
 addEventListener("message", e => {
   const d = e.data;
   if (cur && e.source === $("fr").contentWindow && d && d.rc === "score") {
@@ -269,7 +855,6 @@ function saveScore(g, v) {
   scores.sort((a,b) => b.best - a.best);
   LSW("rcjogos_scores", scores);
 
-  // Envia pontuação também para a nuvem
   fetch(SCRIPT_URL, {
     method: 'POST',
     body: JSON.stringify({
@@ -281,7 +866,7 @@ function saveScore(g, v) {
     })
   }).catch(()=>{});
 
-  alert("Pontuação registrada com sucesso!");
+  alert("Pontuação de " + v + " pontos registrada com sucesso!");
 }
 
 function rank(g) {
@@ -331,15 +916,12 @@ $("file").onchange = async e => {
   if (!$("nm").value) $("nm").value = f.name.replace(/\.html?$/i, "");
 };
 
-// Testar instantaneamente na tela sem salvar
 $("test").onclick = () => {
   const h = $("code").value.trim();
   if (h.length < 20) { $("msg").textContent = "Cole o código HTML primeiro."; return; }
   cur = { id: "test", name: $("nm").value || "Teste Local", html: h };
   play(cur);
 };
-
-// ---------------- SINCRONIZAÇÃO NUVEM GOOGLE DRIVE ----------------
 
 // Carregar jogos do Google Drive
 async function carregarJogosNuvem() {
@@ -394,7 +976,7 @@ $("save").onclick = async () => {
     btn.textContent = "Salvar na Nuvem";
 
     if (res.sucesso) {
-      alert("Sucesso: Jogo arquivado no Google Drive! Já está disponível para todos os jogadores.");
+      alert("Sucesso: Jogo arquivado no Google Drive!");
       ["nm","ds","code","file"].forEach(k => $(k).value = "");
       $("addp").classList.remove("on");
       carregarJogosNuvem();
@@ -411,7 +993,6 @@ $("save").onclick = async () => {
 // Excluir jogo do Google Drive
 async function del(g) {
   if (!confirm("Excluir o jogo \"" + g.name + "\" da nuvem de todos os aparelhos?")) return;
-  
   try {
     const res = await fetch(SCRIPT_URL, {
       method: 'POST',
@@ -429,11 +1010,10 @@ async function del(g) {
   }
 }
 
-// Inicializar interface e puxar jogos da nuvem
+// Inicializar interface e puxar nuvem
 render();
 carregarJogosNuvem();
 
-// Registrar Service Worker para PWA
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("sw.js").catch(err => console.log("SW:", err));

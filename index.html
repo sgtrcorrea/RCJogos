@@ -1,800 +1,578 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CyberArcade Nexus - HTML5 Cloud Launcher</title>
-
-<!-- PWA & Mobile Meta Tags -->
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#0a0b10">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="CyberArcade">
-<link rel="apple-touch-icon" href="./icon-192.png">
-
-<!-- Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-tailwind.config = {
-  darkMode: 'class',
-  theme: {
-    extend: {
-      colors: {
-        cyber: {
-          bg: '#0a0b10',
-          card: '#121520',
-          border: '#1f293d',
-          neonPink: '#ff007f',
-          neonCyan: '#00f0ff',
-          neonYellow: '#ffe600',
-          neonGreen: '#00ff66',
-        }
-      },
-      fontFamily: {
-        orbitron: ['Orbitron', 'sans-serif'],
-        inter: ['Inter', 'sans-serif'],
-      },
-      boxShadow: {
-        'neon-cyan': '0 0 15px rgba(0, 240, 255, 0.4)',
-        'neon-pink': '0 0 15px rgba(255, 0, 127, 0.4)',
-        'neon-yellow': '0 0 15px rgba(255, 230, 0, 0.4)',
-      }
-    }
-  }
-}
-</script>
-
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
-<!-- FontAwesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#120e22">
+<title>RC Jogos</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
-  body { font-family: 'Inter', sans-serif; background-color: #0a0b10; color: #f3f4f6; overflow-x: hidden; }
-  .font-orbitron { font-family: 'Orbitron', sans-serif; }
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-track { background: #0a0b10; }
-  ::-webkit-scrollbar-thumb { background: #1f293d; border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: #00f0ff; }
-  .cyber-grid {
-    background-size: 40px 40px;
-    background-image: linear-gradient(to right, rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-                      linear-gradient(to bottom, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
-  }
-  .glow-text-cyan { text-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 0 0 20px rgba(0, 240, 255, 0.3); }
-  .glow-text-yellow { text-shadow: 0 0 10px rgba(255, 230, 0, 0.6); }
+:root{--bg:#f6f4ff;--card:#fff;--tx:#1b1630;--mu:#6b6585;--ac:#6d28d9;--bd:#ddd6f3;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#120e22;--card:#1c1733;--tx:#f1eeff;--mu:#a69fc4;--ac:#a78bfa;--bd:#352d58}}
+:root[data-theme="dark"]{--bg:#120e22;--card:#1c1733;--tx:#f1eeff;--mu:#a69fc4;--ac:#a78bfa;--bd:#352d58}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px system-ui,sans-serif}body.lock{overflow:hidden}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:16px;max-width:900px;margin:auto}
+h1{margin:0;font-size:24px}main{max-width:900px;margin:auto;padding:0 16px 40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.cv{height:100px;display:flex;align-items:center;justify-content:center;font-size:42px;background-size:cover;background-position:center}
+.cb{padding:10px;display:flex;flex-direction:column;gap:6px;flex:1}.cb b{overflow-wrap:anywhere}
+.tag{font-size:12px;color:var(--ac)}.ds{font-size:13px;color:var(--mu)}
+button{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:9px 12px;font:inherit;cursor:pointer}
+button.g{background:transparent;color:var(--ac);border:1px solid var(--bd)}button.on{background:var(--ac);color:#fff}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.row.sp{margin-top:auto}
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:16px;display:none}.panel.on{display:block}
+input[type=text],textarea,select{width:100%;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:10px;font:inherit;margin:5px 0}
+textarea{min-height:130px;font:13px monospace}.mu{color:var(--mu);font-size:14px}
+#chips{margin:0 0 12px}#q{margin:0 0 8px}
+#player{position:fixed;inset:0;background:#000;display:none;flex-direction:column;z-index:9}#player.on{display:flex}
+#bar{display:flex;gap:6px;align-items:center;padding:8px 12px;padding-top:calc(8px + env(safe-area-inset-top,0px));background:#120e22;color:#fff}
+#bar span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+iframe{flex:1;border:0;width:100%;background:#fff;touch-action:none}
+#pad{display:none;position:absolute;left:0;right:0;bottom:0;padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));justify-content:space-between;pointer-events:none}
+#pad.on{display:flex}#pad>div{display:grid;gap:6px;pointer-events:auto}
+#dp{grid-template-columns:repeat(3,52px);grid-template-rows:repeat(3,52px)}#ab{grid-template-columns:repeat(2,64px);align-self:end}
+#pad button{background:rgba(109,40,217,.55);border:1px solid rgba(255,255,255,.4);padding:0;font-size:20px;touch-action:none;user-select:none;-webkit-user-select:none}
+#rk{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:10;padding:16px}#rk.on{display:flex}
+#rkb{background:var(--card);color:var(--tx);border-radius:14px;padding:16px;width:100%;max-width:380px;max-height:80vh;overflow:auto}
+ol{padding-left:22px;margin:8px 0}
 </style>
 </head>
-<body class="min-h-screen cyber-grid flex flex-col justify-between">
-
-<!-- Top Navigation -->
-<header class="border-b border-cyber-border bg-cyber-card/80 backdrop-blur-md sticky top-0 z-40">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-    <div class="flex items-center space-x-3">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-pink-500 flex items-center justify-center shadow-neon-cyan animate-pulse">
-        <i class="fa-solid fa-gamepad text-black text-xl font-bold"></i>
-      </div>
-      <div>
-        <h1 class="font-orbitron font-black text-xl sm:text-2xl tracking-wider text-white glow-text-cyan">
-          CYBER<span class="text-cyber-neonPink">ARCADE</span>
-        </h1>
-        <p class="text-xs text-cyber-neonCyan font-mono tracking-widest uppercase">Cloud Game Launcher</p>
-      </div>
-    </div>
-
-    <div class="flex items-center space-x-2 sm:space-x-3">
-      <!-- Botão Hall da Fama / Leaderboard -->
-      <button onclick="openLeaderboardModal()" class="px-3 py-2 bg-cyber-bg border border-cyber-neonYellow/50 hover:border-cyber-neonYellow text-cyber-neonYellow rounded-xl text-xs font-orbitron font-bold transition-all flex items-center space-x-2 shadow-neon-yellow">
-        <i class="fa-solid fa-trophy"></i>
-        <span class="hidden md:inline">Hall da Fama</span>
-      </button>
-
-      <!-- Botão PWA -->
-      <button id="install-app-btn" onclick="installApp()" class="hidden px-3 py-2 bg-cyber-bg border border-cyber-neonCyan/50 hover:border-cyber-neonCyan text-cyber-neonCyan rounded-xl text-xs font-orbitron font-bold transition-all flex items-center space-x-2 shadow-neon-cyan">
-        <i class="fa-solid fa-download"></i>
-        <span class="hidden sm:inline">Instalar</span>
-      </button>
-
-      <button onclick="openAddGameModal()" class="px-4 py-2 bg-gradient-to-r from-cyber-neonPink to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-xl text-xs sm:text-sm font-orbitron font-bold shadow-neon-pink transition-all flex items-center space-x-2">
-        <i class="fa-solid fa-code"></i>
-        <span>Dev Studio</span>
-      </button>
-    </div>
+<body>
+<header>
+  <h1>🎮 RC Jogos</h1>
+  <div class="row">
+    <button id="addb">+ Adicionar jogo</button>
   </div>
 </header>
-
-<!-- Main Content -->
-<main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  <!-- Banner Top -->
-  <div class="relative rounded-2xl bg-gradient-to-r from-cyber-card via-[#161b2e] to-cyber-card border border-cyber-neonCyan/30 p-6 sm:p-8 mb-8 overflow-hidden shadow-neon-cyan">
-    <div class="relative z-10 max-w-2xl">
-      <span class="px-3 py-1 bg-cyber-neonCyan/10 border border-cyber-neonCyan/30 rounded-full text-xs font-mono text-cyber-neonCyan uppercase tracking-widest">
-        <i class="fa-solid fa-bolt mr-1"></i> Google Drive Cloud Integration
-      </span>
-      <h2 class="text-2xl sm:text-4xl font-orbitron font-black text-white mt-3 mb-2">
-        ARCADE CLOUD & DEV ENGINE
-      </h2>
-      <p class="text-sm sm:text-base text-gray-300 mb-2">
-        Jogue, teste jogos colando o código em tempo real e dispute o primeiro lugar no ranking global!
-      </p>
-    </div>
+<main>
+<section class="panel" id="addp">
+  <b>Novo jogo (Dev Studio)</b>
+  <input type="text" id="nm" placeholder="Nome do jogo">
+  <input type="text" id="ds" placeholder="Descrição curta (opcional)">
+  <select id="ct"><option>Arcade</option><option>Corrida</option><option>Puzzle</option><option>Tiro</option><option>Plataforma</option><option>Outros</option></select>
+  <label class="mu">Capa (opcional): <input type="file" id="cvf" accept="image/*"></label>
+  <textarea id="code" placeholder="Cole aqui o HTML completo do jogo…"></textarea>
+  <div class="row">
+    <input type="file" id="file" accept=".html,.htm,text/html" style="width:auto">
+    <button id="test" class="g">▶ Testar agora</button>
+    <button id="save">Salvar jogo</button>
+    <button class="g" id="cancel">Cancelar</button>
   </div>
+  <p class="mu" id="msg">Arquivo HTML único (com CSS e JS dentro). Cole o código e use "Testar agora" para rodar imediatamente.</p>
+  <details>
+    <summary class="mu">Prompt para pedir o jogo a qualquer IA</summary>
+    <textarea id="pr" readonly="" style="min-height:130px"></textarea>
+    <button class="g" id="cp">Copiar prompt</button>
+  </details>
+</section>
 
-  <!-- Filters & Search Toolbar -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-    <div class="flex items-center space-x-2 overflow-x-auto pb-2 md:pb-0">
-      <button onclick="filterCategory('all')" class="cat-btn px-4 py-2 rounded-xl text-xs font-orbitron font-bold transition-all bg-cyber-neonCyan text-black shadow-neon-cyan" data-cat="all">All Games</button>
-      <button onclick="filterCategory('builtin')" class="cat-btn px-4 py-2 rounded-xl text-xs font-orbitron font-bold transition-all bg-cyber-card text-gray-300 border border-cyber-border hover:border-cyber-neonCyan" data-cat="builtin">Built-In</button>
-      <button onclick="filterCategory('custom')" class="cat-btn px-4 py-2 rounded-xl text-xs font-orbitron font-bold transition-all bg-cyber-card text-gray-300 border border-cyber-border hover:border-cyber-neonPink" data-cat="custom">Cloud Games</button>
-      <button onclick="filterCategory('favorites')" class="cat-btn px-4 py-2 rounded-xl text-xs font-orbitron font-bold transition-all bg-cyber-card text-gray-300 border border-cyber-border hover:border-cyber-neonYellow" data-cat="favorites"><i class="fa-solid fa-star text-cyber-neonYellow mr-1"></i> Favorites</button>
-    </div>
+<input type="text" id="q" placeholder="🔍 Buscar jogo…">
+<div id="chips" class="row">
+  <button class="on">Todos</button><button class="g">★ Favoritos</button><button class="g">Arcade</button><button class="g">Corrida</button><button class="g">Puzzle</button><button class="g">Tiro</button><button class="g">Plataforma</button><button class="g">Outros</button>
+</div>
 
-    <div class="relative w-full md:w-72">
-      <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-      <input type="text" id="search-input" oninput="handleSearch()" placeholder="Search games..." class="w-full bg-cyber-card border border-cyber-border rounded-xl pl-10 pr-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyber-neonCyan transition-all">
-    </div>
-  </div>
-
-  <!-- Games Grid -->
-  <div id="games-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-
-  <!-- Empty State -->
-  <div id="empty-state" class="hidden text-center py-16">
-    <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-cyber-card border border-cyber-border flex items-center justify-center text-gray-500 text-3xl">
-      <i class="fa-solid fa-ghost"></i>
-    </div>
-    <h3 class="font-orbitron font-bold text-lg text-white mb-1">Nenhum Jogo Encontrado</h3>
-    <p class="text-sm text-gray-400 mb-4">Teste mudar os filtros ou adicione um novo jogo.</p>
-  </div>
+<div id="list" class="grid"></div>
+<p class="mu" id="empty" style="display: none;">Nenhum jogo encontrado.</p>
 </main>
 
-<!-- Footer -->
-<footer class="border-t border-cyber-border bg-cyber-card/60 py-6 mt-12 text-center text-xs text-gray-500 font-mono">
-  <p>CYBERARCADE NEXUS &bull; Google Drive Backend &bull; Ranking Global</p>
-</footer>
-
-<!-- Game Player Modal -->
-<div id="player-modal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl hidden flex flex-col">
-  <div class="bg-cyber-card border-b border-cyber-border px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center space-x-3">
-      <span id="player-game-icon" class="text-xl text-cyber-neonCyan"></span>
-      <div>
-        <h3 id="player-game-title" class="font-orbitron font-bold text-white text-sm sm:text-base">Game Title</h3>
-        <p id="player-game-author" class="text-xs text-gray-400 font-mono">Author</p>
-      </div>
-    </div>
-    <div class="flex items-center space-x-2 sm:space-x-3">
-      <button onclick="openLeaderboardForCurrent()" title="Ver Recordes deste Jogo" class="px-3 py-1.5 rounded-xl bg-cyber-bg border border-cyber-neonYellow/60 text-cyber-neonYellow hover:bg-cyber-neonYellow hover:text-black text-xs font-orbitron font-bold flex items-center space-x-1.5 transition-all">
-        <i class="fa-solid fa-trophy"></i>
-        <span>Ranking</span>
-      </button>
-      <button onclick="toggleFavoriteCurrent()" id="player-fav-btn" title="Favoritar" class="w-9 h-9 rounded-xl bg-cyber-bg border border-cyber-border text-gray-300 hover:text-cyber-neonYellow flex items-center justify-center transition-all">
-        <i class="fa-regular fa-star"></i>
-      </button>
-      <button onclick="closePlayerModal()" title="Fechar" class="w-9 h-9 rounded-xl bg-red-500/20 border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-    </div>
+<!-- Emulador e Controles -->
+<div id="player">
+  <div id="bar">
+    <span id="pt"></span>
+    <button class="g" id="ctl">🎮 Controles</button>
+    <button class="g" id="fs">⛶</button>
+    <button id="close">Fechar</button>
   </div>
-  <div id="player-container" class="flex-grow relative flex items-center justify-center overflow-hidden bg-black p-2 sm:p-6"></div>
-</div>
-
-<!-- Modal: Hall da Fama / Ranking -->
-<div id="leaderboard-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4">
-  <div class="bg-cyber-card border border-cyber-border rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
-    <div class="px-6 py-4 border-b border-cyber-border flex items-center justify-between bg-cyber-bg">
-      <div class="flex items-center space-x-3">
-        <div class="w-8 h-8 rounded-lg bg-cyber-neonYellow/20 flex items-center justify-center text-cyber-neonYellow">
-          <i class="fa-solid fa-trophy"></i>
-        </div>
-        <h3 class="font-orbitron font-bold text-white text-base">Hall da Fama & Recordes</h3>
+  <div style="position:relative;flex:1;display:flex">
+    <iframe id="fr" sandbox="allow-scripts allow-pointer-lock allow-forms allow-modals" allow="fullscreen; gamepad"></iframe>
+    <div id="pad">
+      <div id="dp">
+        <button data-k="ArrowUp" data-c="38" style="grid-area:1/2">▲</button>
+        <button data-k="ArrowLeft" data-c="37" style="grid-area:2/1">◀</button>
+        <button data-k="ArrowRight" data-c="39" style="grid-area:2/3">▶</button>
+        <button data-k="ArrowDown" data-c="40" style="grid-area:3/2">▼</button>
       </div>
-      <button onclick="closeLeaderboardModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-    </div>
-    
-    <!-- Filtro de Jogo do Ranking -->
-    <div class="p-4 bg-cyber-bg/50 border-b border-cyber-border flex items-center space-x-3">
-      <label class="text-xs font-mono text-gray-400">Filtrar por Jogo:</label>
-      <select id="ranking-filter-game" onchange="renderRankingTable()" class="bg-cyber-card border border-cyber-border rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyber-neonYellow flex-grow">
-        <option value="all">🏆 Todos os Jogos (Global)</option>
-      </select>
-    </div>
-
-    <!-- Tabela de Classificação -->
-    <div class="p-6 overflow-y-auto flex-grow" id="ranking-list-container">
-      <div class="text-center py-8 text-gray-500 font-mono text-xs">Carregando pontuações...</div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal: Enviar Pontuação do Jogador -->
-<div id="submit-score-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4">
-  <div class="bg-cyber-card border border-cyber-neonYellow rounded-2xl w-full max-w-sm p-6 text-center shadow-neon-yellow space-y-4">
-    <div class="w-14 h-14 mx-auto rounded-2xl bg-cyber-neonYellow/10 border border-cyber-neonYellow/40 flex items-center justify-center text-cyber-neonYellow text-2xl">
-      <i class="fa-solid fa-crown"></i>
-    </div>
-    <h3 class="font-orbitron font-bold text-white text-lg">NOVO RECORDE!</h3>
-    <p class="text-xs text-gray-400">Você fez <span id="submit-score-value" class="text-cyber-neonYellow font-bold text-base">0</span> pontos!</p>
-    <div>
-      <label class="block text-xs font-mono text-gray-400 mb-1 text-left">Seu Apelido / Nick *</label>
-      <input type="text" id="player-nick-input" maxlength="15" placeholder="Ex: CyberNinja" class="w-full bg-cyber-bg border border-cyber-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyber-neonYellow text-center font-orbitron font-bold">
-    </div>
-    <div class="flex space-x-2 pt-2">
-      <button onclick="closeSubmitScoreModal()" class="flex-1 py-2 bg-cyber-bg border border-cyber-border text-gray-400 text-xs font-orbitron rounded-xl">Ignorar</button>
-      <button onclick="confirmSubmitScore()" id="btn-save-score" class="flex-1 py-2 bg-cyber-neonYellow text-black text-xs font-orbitron font-bold rounded-xl shadow-neon-yellow">Gravar Rank</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal: Dev Studio (Adicionar / Testar) -->
-<div id="add-game-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
-  <div class="bg-cyber-card border border-cyber-border rounded-2xl w-full max-w-xl overflow-hidden shadow-2xl">
-    <div class="px-6 py-4 border-b border-cyber-border flex items-center justify-between bg-cyber-bg">
-      <h3 class="font-orbitron font-bold text-white text-base flex items-center space-x-2">
-        <i class="fa-solid fa-code text-cyber-neonPink"></i>
-        <span>Dev Studio: Publicar ou Testar Jogo</span>
-      </h3>
-      <button onclick="closeAddGameModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-    </div>
-    <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
-      <div class="flex rounded-xl bg-cyber-bg p-1 border border-cyber-border">
-        <button onclick="switchTab('code')" id="tab-code" class="flex-1 py-2 text-xs font-orbitron font-bold rounded-lg transition-all bg-cyber-card text-cyber-neonCyan shadow">Colar Código HTML</button>
-        <button onclick="switchTab('file')" id="tab-file" class="flex-1 py-2 text-xs font-orbitron font-bold rounded-lg transition-all text-gray-400">Carregar Arquivo .html</button>
-      </div>
-      <div>
-        <label class="block text-xs font-mono text-gray-400 mb-1">Título do Jogo *</label>
-        <input type="text" id="new-title" placeholder="Ex: Cyber Runner 2077" class="w-full bg-cyber-bg border border-cyber-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyber-neonCyan">
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-xs font-mono text-gray-400 mb-1">Categoria</label>
-          <select id="new-category" class="w-full bg-cyber-bg border border-cyber-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyber-neonCyan">
-            <option value="Action">Action</option>
-            <option value="Arcade">Arcade</option>
-            <option value="Retro">Retro</option>
-            <option value="Puzzle">Puzzle</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-mono text-gray-400 mb-1">Desenvolvedor *</label>
-          <input type="text" id="new-author" placeholder="Seu nome / alias" class="w-full bg-cyber-bg border border-cyber-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyber-neonCyan">
-        </div>
-      </div>
-      <div>
-        <label class="block text-xs font-mono text-gray-400 mb-1">Descrição Breve</label>
-        <input type="text" id="new-desc" placeholder="Resumo do jogo..." class="w-full bg-cyber-bg border border-cyber-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyber-neonCyan">
-      </div>
-      <div id="section-code" class="space-y-2">
-        <label class="block text-xs font-mono text-gray-400 mb-1">Código HTML Completo *</label>
-        <textarea id="new-code-input" rows="8" placeholder="<!DOCTYPE html><html>...</html>" class="w-full bg-cyber-bg border border-cyber-border rounded-xl p-3 text-xs font-mono text-white focus:outline-none focus:border-cyber-neonCyan"></textarea>
-      </div>
-      <div id="section-file" class="space-y-2 hidden">
-        <label class="block text-xs font-mono text-gray-400 mb-1">Arquivo HTML (.html) *</label>
-        <input type="file" id="new-file-input" accept=".html" class="w-full text-sm text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-orbitron file:font-bold file:bg-cyber-neonCyan/10 file:text-cyber-neonCyan hover:file:bg-cyber-neonCyan/25 cursor-pointer border border-cyber-border rounded-xl bg-cyber-bg p-2">
-      </div>
-    </div>
-    <div class="px-6 py-4 border-t border-cyber-border bg-cyber-bg flex items-center justify-between">
-      <!-- Botão de Testar Instantaneamente sem Salvar -->
-      <button onclick="testGameInstantly()" class="px-4 py-2 bg-cyber-bg border border-cyber-neonCyan/50 hover:border-cyber-neonCyan text-cyber-neonCyan rounded-xl text-xs font-orbitron font-bold transition-all flex items-center space-x-1.5">
-        <i class="fa-solid fa-play"></i>
-        <span>Testar Agora</span>
-      </button>
-
-      <div class="flex items-center space-x-2">
-        <button onclick="closeAddGameModal()" class="px-3 py-2 bg-cyber-card border border-cyber-border rounded-xl text-xs font-orbitron font-bold text-gray-300">Cancelar</button>
-        <button onclick="saveCustomGame()" id="btn-save-game" class="px-4 py-2 bg-gradient-to-r from-cyber-neonPink to-purple-600 text-white rounded-xl text-xs font-orbitron font-bold shadow-neon-pink">Enviar para Nuvem</button>
+      <div id="ab">
+        <button data-k="Enter" data-c="13">B</button>
+        <button data-k=" " data-c="32">A</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Toast Notification -->
-<div id="toast" class="fixed bottom-6 right-6 z-50 bg-cyber-card border border-cyber-neonCyan text-white px-4 py-3 rounded-xl shadow-neon-cyan text-xs font-mono transform translate-y-20 opacity-0 transition-all duration-300 flex items-center space-x-3">
-  <i class="fa-solid fa-check text-cyber-neonCyan text-base"></i>
-  <span id="toast-message">Mensagem</span>
-</div>
+<!-- Modal de Ranking -->
+<div id="rk"><div id="rkb"></div></div>
 
-<!-- JAVASCRIPT -->
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwa0-tg8I_wS7L0anoHZfcZ3TCPe7GDMiYJ0CZeysPx59YU-D_j4ldfai_PmkZrW_L0/exec";
+// Jogo inicial embutido (Star Wars Galactic Ace)
+const SEED = [
+  {
+    "id": "g_starwars",
+    "name": "STAR WARS Galace",
+    "cat": "Tiro",
+    "desc": "Batalha espacial arcade cinematográfica.",
+    "t": 1792249138278,
+    "html": `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#050712">
+<title>Galactic Ace</title>
+<style>
+:root{color-scheme:dark;--cyan:#52f6ff;--blue:#377dff;--pink:#ff386b;--gold:#ffc857;--panel:rgba(7,12,30,.94)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#03040b;color:#f4f7ff;font-family:system-ui,sans-serif;overscroll-behavior:none}
+button{font:inherit;touch-action:manipulation}
+#game-container{position:relative;width:min(100vw,560px);height:100dvh;max-height:1000px;margin:auto;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,#101d43 0%,#050817 48%,#02030a 100%);isolation:isolate}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+#hud{position:absolute;inset:0 0 auto;z-index:5;padding:max(12px,env(safe-area-inset-top)) 14px 0;display:flex;justify-content:space-between;pointer-events:none;gap:12px;text-shadow:0 2px 5px #000}
+.hud-col{display:flex;flex-direction:column;gap:5px;min-width:120px}.hud-col.right{align-items:flex-end;text-align:right}
+.hud-label{font-size:10px;letter-spacing:1.5px;color:#aab8d8;font-weight:800}.hud-value{font-size:15px;font-weight:900}
+.bar{width:clamp(100px,32vw,150px);height:7px;border:1px solid #ffffff44;background:#ffffff1b;border-radius:99px;overflow:hidden}.fill{height:100%;width:100%;transition:width .12s linear;background:linear-gradient(90deg,#ff386b,#ffb34f)}#special-fill{background:linear-gradient(90deg,#37dfff,#7e8bff)}
+#mobile-controls{position:absolute;z-index:6;bottom:max(16px,env(safe-area-inset-bottom));left:0;right:0;display:flex;align-items:flex-end;justify-content:space-between;padding:0 16px;pointer-events:none}
+.control-cluster{display:flex;gap:10px;align-items:flex-end}
+.control-btn{pointer-events:auto;width:clamp(56px,15vw,70px);height:clamp(56px,15vw,70px);border-radius:50%;border:1px solid #58eaffaa;background:radial-gradient(circle at 35% 25%,#3e9bcb77,#08152bd9 72%);color:#dffcff;font-weight:900;font-size:10px;display:grid;place-items:center;user-select:none}
+.control-btn.pink{border-color:#ff5688aa;color:#ffdce7;background:radial-gradient(circle at 35% 25%,#b3325d77,#260a20e8 72%)}
+.screen{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;background:rgba(3,5,15,.92);backdrop-filter:blur(10px)}
+.logo{font-size:36px;font-weight:900;color:#52f6ff;margin:0 0 10px;text-transform:uppercase}
+.btn{border:1px solid #66f5ff8c;color:#f3ffff;background:linear-gradient(110deg,#0876b9,#1749a9);padding:12px 24px;border-radius:12px;font-weight:900;font-size:13px;cursor:pointer;margin:6px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div id="game-container">
+  <canvas id="gameCanvas"></canvas>
+  <div id="hud" class="hidden">
+    <div class="hud-col">
+      <div class="hud-label">ESCUDO</div>
+      <div class="hud-value"><span id="hud-hp">100</span> HP</div>
+      <div class="bar"><div id="hp-fill" class="fill"></div></div>
+      <div class="hud-label" style="margin-top:3px">ALVOS <span id="hud-kills">0 / 15</span></div>
+    </div>
+    <div class="hud-col right">
+      <div class="hud-label">SETOR <span id="hud-wave" style="color:#fff">01</span></div>
+      <div class="hud-value" style="color:var(--gold)">PTS <span id="hud-score">0</span></div>
+      <div class="hud-label">BOMBAS: <span id="hud-bombs">2</span></div>
+    </div>
+  </div>
+  <div id="mobile-controls" class="hidden">
+    <div class="control-cluster">
+      <button class="control-btn" id="btn-special">✦<br><small>RAIO</small></button>
+      <button class="control-btn pink" id="btn-bomb">✹<br><small>BOMBA</small></button>
+    </div>
+  </div>
+  <section id="menu-screen" class="screen">
+    <h1 class="logo">GALACTIC ACE</h1>
+    <p style="color:#aab8d8;font-size:13px;max-width:320px;margin-bottom:20px">Defenda a galáxia. Destrua as naves inimigas e dispute o topo do ranking!</p>
+    <button class="btn" id="start-btn">▶ INICIAR MISSÃO</button>
+  </section>
+  <section id="over-screen" class="screen hidden">
+    <h1 class="logo" style="color:#ff386b">FIM DE JOGO</h1>
+    <p style="font-size:18px;margin:5px 0">Pontos: <b id="final-score" style="color:#ffd36b">0</b></p>
+    <button class="btn" id="retry-btn">↻ JOGAR NOVAMENTE</button>
+  </section>
+</div>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const canvas = $('gameCanvas'), ctx = canvas.getContext('2d');
+  let W=480, H=850, player={x:240,y:720,hp:100,maxHp:100}, score=0, wave=1, kills=0, target=15, bombs=2;
+  let bullets=[], enemies=[], particles=[], state='MENU', lastTime=0, spawnTimer=0;
+  const keys={};
+  
+  function resize(){
+    const r=$('game-container').getBoundingClientRect();
+    W=canvas.width=r.width; H=canvas.height=r.height;
+    player.x=W/2; player.y=H*0.82;
+  }
+  window.addEventListener('resize', resize);
+  resize();
 
-// Service Worker Registration
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW:', err));
+  function startGame(){
+    score=0; wave=1; kills=0; target=15; bombs=2; player.hp=100;
+    bullets=[]; enemies=[]; particles=[]; state='PLAY';
+    $('menu-screen').classList.add('hidden');
+    $('over-screen').classList.add('hidden');
+    $('hud').classList.remove('hidden');
+    $('mobile-controls').classList.remove('hidden');
+    lastTime=performance.now();
+  }
+
+  function gameOver(){
+    state='OVER';
+    $('final-score').textContent = score;
+    $('hud').classList.add('hidden');
+    $('mobile-controls').classList.add('hidden');
+    $('over-screen').classList.remove('hidden');
+    // Envia a pontuação para a plataforma RC Jogos
+    if(window.reportScore) window.reportScore(score);
+  }
+
+  window.addEventListener('keydown', e=>{ keys[e.code]=true; if(e.code==='Space') useSpecial(); if(e.code==='KeyE') useBomb(); });
+  window.addEventListener('keyup', e=>{ keys[e.code]=false; });
+
+  canvas.addEventListener('pointermove', e=>{
+    if(state!=='PLAY') return;
+    const r=canvas.getBoundingClientRect();
+    player.x=e.clientX-r.left;
+    player.y=e.clientY-r.top;
   });
-}
 
-// PWA Install Prompt
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById('install-app-btn').classList.remove('hidden');
-});
+  function useSpecial(){
+    if(state!=='PLAY') return;
+    for(let i=-2; i<=2; i++) bullets.push({x:player.x, y:player.y-20, vx:i*70, vy:-600, r:4});
+  }
+  function useBomb(){
+    if(state!=='PLAY' || bombs<=0) return;
+    bombs--;
+    enemies.forEach(e=>score+=100);
+    enemies=[];
+  }
+  $('btn-special').onclick=useSpecial;
+  $('btn-bomb').onclick=useBomb;
+  $('start-btn').onclick=startGame;
+  $('retry-btn').onclick=startGame;
 
-function installApp() {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(() => {
-      deferredPrompt = null;
-      document.getElementById('install-app-btn').classList.add('hidden');
+  let shotTimer=0;
+  function update(dt){
+    if(state!=='PLAY') return;
+    if(keys.ArrowLeft || keys.KeyA) player.x -= 300*dt;
+    if(keys.ArrowRight || keys.KeyD) player.x += 300*dt;
+    if(keys.ArrowUp || keys.KeyW) player.y -= 300*dt;
+    if(keys.ArrowDown || keys.KeyS) player.y += 300*dt;
+    player.x = Math.max(20, Math.min(W-20, player.x));
+    player.y = Math.max(40, Math.min(H-40, player.y));
+
+    shotTimer += dt;
+    if(shotTimer > 0.16){
+      shotTimer = 0;
+      bullets.push({x:player.x, y:player.y-20, vx:0, vy:-550, r:3.5});
+    }
+
+    spawnTimer -= dt;
+    if(spawnTimer <= 0){
+      spawnTimer = Math.max(0.35, 1.0 - wave*0.05);
+      enemies.push({x:30+Math.random()*(W-60), y:-20, vy:120+wave*15, hp:2});
+    }
+
+    for(let i=bullets.length-1; i>=0; i--){
+      const b=bullets[i]; b.x+=(b.vx||0)*dt; b.y+=b.vy*dt;
+      if(b.y < -10) { bullets.splice(i,1); continue; }
+      for(let j=enemies.length-1; j>=0; j--){
+        const e=enemies[j];
+        if(Math.hypot(b.x-e.x, b.y-e.y) < 22){
+          e.hp--; bullets.splice(i,1);
+          if(e.hp<=0){
+            enemies.splice(j,1); score += 100; kills++;
+            if(kills >= target){ wave++; target += 5; kills=0; }
+          }
+          break;
+        }
+      }
+    }
+
+    for(let i=enemies.length-1; i>=0; i--){
+      const e=enemies[i]; e.y += e.vy*dt;
+      if(Math.hypot(e.x-player.x, e.y-player.y) < 25){
+        enemies.splice(i,1); player.hp -= 20;
+        if(player.hp <= 0) gameOver();
+      } else if(e.y > H+30) enemies.splice(i,1);
+    }
+
+    $('hud-hp').textContent = Math.max(0, player.hp);
+    $('hp-fill').style.width = (player.hp)+'percent'.replace('percent','%');
+    $('hud-score').textContent = score;
+    $('hud-kills').textContent = kills + ' / ' + target;
+    $('hud-wave').textContent = String(wave).padStart(2,'0');
+    $('hud-bombs').textContent = bombs;
+  }
+
+  function render(){
+    ctx.fillStyle = '#050713';
+    ctx.fillRect(0,0,W,H);
+
+    // Nave do jogador
+    if(state==='PLAY'){
+      ctx.fillStyle = '#52f6ff';
+      ctx.beginPath();
+      ctx.moveTo(player.x, player.y-20);
+      ctx.lineTo(player.x-16, player.y+15);
+      ctx.lineTo(player.x+16, player.y+15);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Tiros
+    ctx.fillStyle = '#37dfff';
+    bullets.forEach(b => {
+      ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2); ctx.fill();
+    });
+
+    // Inimigos
+    ctx.fillStyle = '#ff386b';
+    enemies.forEach(e => {
+      ctx.beginPath();
+      ctx.arc(e.x, e.y, 14, 0, Math.PI*2);
+      ctx.fill();
     });
   }
-}
 
-// Jogos Pré-instalados com Suporte a Score nativo
-const defaultGames = [
-  {
-    id: 'builtin-snake',
-    title: 'Cyber Snake',
-    category: 'Retro',
-    icon: 'fa-solid fa-worm',
-    desc: 'Clássico jogo da cobrinha em neon com envio de pontuação ao bater recorde.',
-    author: 'CyberArcade Team',
-    builtin: true,
-    generator: () => `<!DOCTYPE html><html><head><style>body{background:#050508;color:#00f0ff;font-family:monospace;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;}canvas{border:2px solid #00f0ff;background:#0a0b12;border-radius:10px;}</style></head><body><div style="margin-bottom:12px;font-size:18px;font-weight:bold;">SCORE: <span id="score" style="color:#ffe600;">0</span></div><canvas id="c" width="380" height="380"></canvas><div style="margin-top:10px;color:#888;font-size:11px;">Use as Setas do Teclado para Mover</div><script>const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');let s=[{x:10,y:10}],f={x:5,y:5},dx=1,dy=0,score=0,dead=false;function reset(){if(score>0){window.parent.postMessage({type:'CYBER_SUBMIT_SCORE',score:score},'*');}s=[{x:10,y:10}];dx=1;dy=0;score=0;document.getElementById('score').innerText=0;dead=false;}const loop=setInterval(()=>{if(dead)return;const h={x:s[0].x+dx,y:s[0].y+dy};if(h.x<0||h.x>=19||h.y<0||h.y>=19||s.some(p=>p.x===h.x&&p.y===h.y)){dead=true;alert('Game Over! Pontos: '+score);reset();return;}s.unshift(h);if(h.x===f.x&&h.y===f.y){score+=10;document.getElementById('score').innerText=score;f.x=Math.floor(Math.random()*19);f.y=Math.floor(Math.random()*19);}else{s.pop();}ctx.fillStyle='#0a0b12';ctx.fillRect(0,0,380,380);ctx.fillStyle='#ff007f';ctx.fillRect(f.x*20,f.y*20,18,18);ctx.fillStyle='#00ff66';s.forEach(p=>ctx.fillRect(p.x*20,p.y*20,18,18));},110);window.addEventListener('keydown',e=>{if(e.key==='ArrowUp'&&dy===0){dx=0;dy=-1;}if(e.key==='ArrowDown'&&dy===0){dx=0;dy=1;}if(e.key==='ArrowLeft'&&dx===0){dx=-1;dy=0;}if(e.key==='ArrowRight'&&dx===0){dx=1;dy=0;}});<\/script></body></html>`
+  function loop(now){
+    const dt = Math.min(0.04, (now-lastTime)/1000);
+    lastTime = now;
+    update(dt);
+    render();
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+<\/script>
+</body>
+</html>`
   }
 ];
 
-let cloudGames = [];
-let globalRankings = [];
-let favorites = JSON.parse(localStorage.getItem('cyber_favorites') || '[]');
-let currentFilter = 'all';
-let searchQuery = '';
-let currentGame = null;
-let addTab = 'code';
-let pendingScore = null;
+const $ = id => document.getElementById(id);
+const CATS = ["Arcade","Corrida","Puzzle","Tiro","Plataforma","Outros"];
+const EMO = {Arcade:"🕹️", Corrida:"🏎️", Puzzle:"🧩", Tiro:"🚀", Plataforma:"🍄", Outros:"🎲"};
+const PROMPT = "Crie um jogo arcade completo em UM ÚNICO arquivo HTML (HTML, CSS e JavaScript juntos, sem bibliotecas externas). Deve funcionar no celular (toque) e no computador (setas + espaço), usar canvas, ter placar, game over e botão de reiniciar. Ao terminar cada partida, chame window.reportScore(pontos) para enviar ao ranking. Responda apenas com o código dentro de um bloco de código.";
+const INJ = '<script>(function(){window.reportScore=function(n){parent.postMessage({rc:"score",v:+n},"*")};addEventListener("message",function(e){var d=e.data;if(!d||d.rc!=="key")return;var ev=new KeyboardEvent(d.type,{key:d.key,code:d.code,bubbles:true});try{Object.defineProperty(ev,"keyCode",{get:function(){return d.kc}});Object.defineProperty(ev,"which",{get:function(){return d.kc}})}catch(x){}document.dispatchEvent(ev)})})()<\/script>';
 
-// Escuta mensagens do Jogo (ex: envio de score)
-window.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'CYBER_SUBMIT_SCORE') {
-    const score = parseInt(event.data.score);
-    if (!isNaN(score) && score > 0 && currentGame) {
-      pendingScore = score;
-      document.getElementById('submit-score-value').innerText = score;
-      document.getElementById('submit-score-modal').classList.remove('hidden');
+$("pr").value = PROMPT;
+$("ct").innerHTML = CATS.map(c=>`<option>${c}</option>`).join("");
+
+const LS = (k,d) => { try{ return JSON.parse(localStorage.getItem(k)) ?? d } catch(e){ return d } };
+const LSW = (k,v) => { try{ localStorage.setItem(k, JSON.stringify(v)) } catch(e){} };
+
+let savedGames = LS("rcjogos_games", []);
+let games = savedGames.length ? savedGames : SEED.slice();
+let scores = LS("rcjogos_scores", []);
+let favs = LS("rcjogos_favs", []);
+let cat = "Todos", cur = null, pad = false;
+
+const hue = s => [...s].reduce((a,c)=>a*31+c.charCodeAt(0),7) % 360;
+
+function chips() {
+  const w = $("chips"); w.textContent = "";
+  ["Todos","★ Favoritos",...CATS].forEach(c => {
+    const b = document.createElement("button");
+    b.textContent = c;
+    b.className = cat === c ? "on" : "g";
+    b.onclick = () => { cat = c; render(); };
+    w.append(b);
+  });
+}
+
+function render() {
+  chips();
+  const L = $("list"); L.textContent = "";
+  const q = $("q").value.toLowerCase();
+  const arr = games.filter(g => (cat==="Todos" || (cat==="★ Favoritos"?favs.includes(g.id):g.cat===cat)) && (g.name+" "+(g.desc||"")).toLowerCase().includes(q)).sort((a,b)=>(b.t||0)-(a.t||0));
+  
+  $("empty").style.display = arr.length ? "none" : "block";
+
+  arr.forEach(g => {
+    const c = document.createElement("div"); c.className = "card";
+    const cv = document.createElement("div"); cv.className = "cv";
+    if (g.cover) {
+      cv.style.backgroundImage = "url("+g.cover+")";
+    } else {
+      cv.style.background = `linear-gradient(135deg,hsl(${hue(g.name)},70%,45%),hsl(${(hue(g.name)+60)%360},70%,30%))`;
+      cv.textContent = EMO[g.cat] || "🕹️";
     }
+    const b = document.createElement("div"); b.className = "cb";
+    const n = document.createElement("b"); n.textContent = g.name;
+    const t = document.createElement("div"); t.className = "tag"; t.textContent = g.cat || "Outros";
+    const d = document.createElement("div"); d.className = "ds"; d.textContent = g.desc || "";
+    const r = document.createElement("div"); r.className = "row sp";
+    
+    const mk = (x, f, cl) => {
+      const e = document.createElement("button");
+      e.textContent = x;
+      if (cl) e.className = cl;
+      e.onclick = f;
+      r.append(e);
+    };
+
+    mk("Jogar", () => play(g));
+    mk(favs.includes(g.id) ? "★" : "☆", () => fav(g.id), "g");
+    mk("🏆", () => rank(g), "g");
+    mk("🗑", () => del(g), "g");
+
+    b.append(n, t);
+    if (g.desc) b.append(d);
+    b.append(r);
+    c.append(cv, b);
+    L.append(c);
+  });
+}
+
+function fav(id) {
+  favs = favs.includes(id) ? favs.filter(x=>x!==id) : [...favs, id];
+  LSW("rcjogos_favs", favs);
+  render();
+}
+
+$("q").oninput = render;
+
+function build(h) {
+  return /<head[^>]*>/i.test(h) ? h.replace(/<head[^>]*>/i, m => m + INJ) : INJ + h;
+}
+
+function play(g) {
+  cur = g;
+  $("pt").textContent = g.name;
+  $("fr").srcdoc = build(g.html);
+  $("player").classList.add("on");
+  document.body.classList.add("lock");
+  pad = ("ontouchstart" in window);
+  $("pad").classList.toggle("on", pad);
+}
+
+function closeP() {
+  $("player").classList.remove("on");
+  document.body.classList.remove("lock");
+  $("fr").srcdoc = "";
+  cur = null;
+}
+
+$("close").onclick = closeP;
+$("fs").onclick = () => {
+  const e = $("fr");
+  (e.requestFullscreen || e.webkitRequestFullscreen || function(){}).call(e);
+};
+$("ctl").onclick = () => {
+  pad = !pad;
+  $("pad").classList.toggle("on", pad);
+};
+
+// Controles virtuais (D-Pad)
+document.querySelectorAll("#pad button").forEach(b => {
+  const s = t => {
+    $("fr").contentWindow.postMessage({
+      rc: "key",
+      type: t,
+      key: b.dataset.k,
+      code: b.dataset.k === " " ? "Space" : b.dataset.k,
+      kc: +b.dataset.c
+    }, "*");
+  };
+  b.addEventListener("pointerdown", e => { e.preventDefault(); s("keydown"); });
+  ["pointerup","pointercancel","pointerleave"].forEach(ev => b.addEventListener(ev, () => s("keyup")));
+});
+
+// Receptor de pontuação
+addEventListener("message", e => {
+  const d = e.data;
+  if (cur && e.source === $("fr").contentWindow && d && d.rc === "score") {
+    saveScore(cur, Math.floor(d.v));
   }
 });
 
-function switchTab(tab) {
-  addTab = tab;
-  ['file', 'code'].forEach(t => {
-    const btn = document.getElementById(`tab-${t}`);
-    const sec = document.getElementById(`section-${t}`);
-    if (t === tab) {
-      btn.className = 'flex-1 py-2 text-xs font-orbitron font-bold rounded-lg transition-all bg-cyber-card text-cyber-neonCyan shadow';
-      sec.classList.remove('hidden');
-    } else {
-      btn.className = 'flex-1 py-2 text-xs font-orbitron font-bold rounded-lg transition-all text-gray-400';
-      sec.classList.add('hidden');
-    }
-  });
-}
-
-async function carregarJogosDaNuvem() {
-  try {
-    const response = await fetch(SCRIPT_URL + "?action=listar");
-    const data = await response.json();
-    if (data.sucesso) {
-      cloudGames = data.jogos;
-    }
-  } catch (err) {
-    console.error("Erro ao carregar jogos:", err);
-  }
-  renderGames();
-  atualizarFiltrosRanking();
-}
-
-async function carregarRankings() {
-  try {
-    const response = await fetch(SCRIPT_URL + "?action=ranking");
-    const data = await response.json();
-    if (data.sucesso) {
-      globalRankings = data.ranking;
-    }
-  } catch (err) {
-    console.error("Erro ao carregar ranking:", err);
-  }
-}
-
-function getAllGames() {
-  return [...defaultGames, ...cloudGames];
-}
-
-function renderGames() {
-  const grid = document.getElementById('games-grid');
-  const emptyState = document.getElementById('empty-state');
-  const all = getAllGames();
-
-  const filtered = all.filter(g => {
-    if (currentFilter === 'builtin' && !g.builtin) return false;
-    if (currentFilter === 'custom' && g.builtin) return false;
-    if (currentFilter === 'favorites' && !favorites.includes(g.id)) return false;
-    if (searchQuery && !g.title.toLowerCase().includes(searchQuery) && !g.desc.toLowerCase().includes(searchQuery)) return false;
-    return true;
-  });
-
-  grid.innerHTML = '';
-  if (filtered.length === 0) {
-    emptyState.classList.remove('hidden');
-    return;
-  } else {
-    emptyState.classList.add('hidden');
-  }
-
-  filtered.forEach(game => {
-    const isFav = favorites.includes(game.id);
-    const card = document.createElement('div');
-    card.className = 'bg-cyber-card border border-cyber-border hover:border-cyber-neonCyan rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 hover:shadow-neon-cyan group relative';
-    
-    // Botão de Excluir Jogo da Nuvem (somente para jogos não-nativos)
-    const deleteBtnHtml = !game.builtin ? `
-      <button onclick="confirmarExclusao('${game.id}', '${game.title}', event)" title="Excluir da Nuvem" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/30 border border-red-500/30 text-red-400 hover:text-red-300 flex items-center justify-center transition-all ml-1">
-        <i class="fa-solid fa-trash-can text-xs"></i>
-      </button>
-    ` : '';
-
-    card.innerHTML = `
-      <div>
-        <div class="flex items-center justify-between mb-4">
-          <div class="w-12 h-12 rounded-xl bg-cyber-bg border border-cyber-border flex items-center justify-center text-cyber-neonCyan text-xl group-hover:scale-110 transition-transform">
-            <i class="${game.icon || 'fa-solid fa-gamepad'}"></i>
-          </div>
-          <div class="flex items-center space-x-1">
-            <span class="px-2.5 py-1 bg-cyber-bg border border-cyber-border rounded-lg text-[10px] font-mono text-gray-400 uppercase tracking-widest">${game.category}</span>
-            <button onclick="toggleFavorite('${game.id}', event)" class="w-8 h-8 rounded-lg bg-cyber-bg border border-cyber-border flex items-center justify-center text-gray-400 hover:text-cyber-neonYellow transition-all">
-              <i class="${isFav ? 'fa-solid text-cyber-neonYellow' : 'fa-regular'} fa-star"></i>
-            </button>
-            ${deleteBtnHtml}
-          </div>
-        </div>
-        <h3 class="font-orbitron font-bold text-white text-lg mb-1 group-hover:text-cyber-neonCyan transition-colors">${game.title}</h3>
-        <p class="text-xs text-gray-400 line-clamp-2 mb-4">${game.desc}</p>
-      </div>
-      <div class="flex items-center justify-between pt-4 border-t border-cyber-border/60">
-        <span class="text-[11px] font-mono text-gray-500">Por ${game.author || 'Dev'}</span>
-        <button onclick="launchGame('${game.id}')" class="px-4 py-2 bg-cyber-neonCyan/10 hover:bg-cyber-neonCyan border border-cyber-neonCyan/40 hover:border-cyber-neonCyan text-cyber-neonCyan hover:text-black font-orbitron font-bold text-xs rounded-xl transition-all shadow-sm flex items-center space-x-2">
-          <i class="fa-solid fa-play"></i>
-          <span>PLAY</span>
-        </button>
-      </div>
-    `;
-    grid.appendChild(card);
-  });
-}
-
-function filterCategory(cat) {
-  currentFilter = cat;
-  document.querySelectorAll('.cat-btn').forEach(btn => {
-    btn.className = 'cat-btn px-4 py-2 rounded-xl text-xs font-orbitron font-bold transition-all bg-cyber-card text-gray-300 border border-cyber-border hover:border-cyber-neonCyan';
-  });
-  const activeBtn = document.querySelector(`[data-cat="${cat}"]`);
-  if (activeBtn) activeBtn.className = 'cat-btn px-4 py-2 rounded-xl text-xs font-orbitron font-bold transition-all bg-cyber-neonCyan text-black shadow-neon-cyan';
-  renderGames();
-}
-
-function handleSearch() {
-  searchQuery = document.getElementById('search-input').value.toLowerCase();
-  renderGames();
-}
-
-function toggleFavorite(id, e) {
-  e.stopPropagation();
-  if (favorites.includes(id)) {
-    favorites = favorites.filter(f => f !== id);
-    showToast('Removido dos favoritos');
-  } else {
-    favorites.push(id);
-    showToast('Adicionado aos favoritos');
-  }
-  localStorage.setItem('cyber_favorites', JSON.stringify(favorites));
-  renderGames();
-}
-
-function launchGame(id, temporaryCode = null, customTitle = null) {
-  let game;
-  if (temporaryCode) {
-    game = {
-      id: 'test-sandbox',
-      title: customTitle || 'Teste Sandbox',
-      author: 'Dev Local',
-      category: 'Dev Mode',
-      code: temporaryCode
-    };
-  } else {
-    const all = getAllGames();
-    game = all.find(g => g.id === id);
-  }
-  if (!game) return;
-
-  currentGame = game;
-  document.getElementById('player-game-title').innerText = game.title;
-  document.getElementById('player-game-author').innerText = `Por ${game.author || 'Nuvem'} • ${game.category}`;
-  document.getElementById('player-game-icon').innerHTML = `<i class="fa-solid fa-gamepad"></i>`;
-
-  const container = document.getElementById('player-container');
-  container.innerHTML = '';
-
-  const iframe = document.createElement('iframe');
-  iframe.className = 'w-full h-full border-0 rounded-xl bg-black';
-  container.appendChild(iframe);
-
-  iframe.srcdoc = typeof game.generator === 'function' ? game.generator() : game.code;
-  document.getElementById('player-modal').classList.remove('hidden');
-}
-
-function closePlayerModal() {
-  document.getElementById('player-modal').classList.add('hidden');
-  document.getElementById('player-container').innerHTML = '';
-  currentGame = null;
-}
-
-// ---------------- EXCLUSÃO DE JOGOS ----------------
-async function confirmarExclusao(id, title, event) {
-  event.stopPropagation();
-  if (!confirm(`Tem certeza que deseja excluir o jogo "${title}" do Google Drive?`)) return;
-
-  showToast('Excluindo jogo...');
-  try {
-    const response = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'excluir', id: id })
-    });
-    const res = await response.json();
-    if (res.sucesso) {
-      showToast('Jogo removido com sucesso!');
-      carregarJogosDaNuvem();
-    } else {
-      showToast('Erro ao excluir: ' + res.mensagem);
-    }
-  } catch (err) {
-    showToast('Erro de comunicação com o servidor.');
-  }
-}
-
-// ---------------- DEV STUDIO: TESTE INSTANTÂNEO ----------------
-function testGameInstantly() {
-  const code = document.getElementById('new-code-input').value.trim();
-  const title = document.getElementById('new-title').value.trim() || 'Jogo em Teste';
-  if (!code) {
-    showToast('Cole o código HTML na aba para testar!');
-    return;
-  }
-  closeAddGameModal();
-  launchGame(null, code, title);
-}
-
-// ---------------- RANKING & LEADERBOARD ----------------
-function openLeaderboardModal() {
-  document.getElementById('leaderboard-modal').classList.remove('hidden');
-  atualizarFiltrosRanking();
-  renderRankingTable();
-  carregarRankings().then(() => renderRankingTable());
-}
-
-function openLeaderboardForCurrent() {
-  if (!currentGame) return;
-  document.getElementById('leaderboard-modal').classList.remove('hidden');
-  atualizarFiltrosRanking();
-  document.getElementById('ranking-filter-game').value = currentGame.id;
-  renderRankingTable();
-}
-
-function closeLeaderboardModal() {
-  document.getElementById('leaderboard-modal').classList.add('hidden');
-}
-
-function atualizarFiltrosRanking() {
-  const select = document.getElementById('ranking-filter-game');
-  const currentVal = select.value;
-  select.innerHTML = '<option value="all">🏆 Todos os Jogos (Global)</option>';
+function saveScore(g, v) {
+  if (!isFinite(v) || v <= 0) return;
+  let name = prompt(`🏆 Novo recorde no jogo ${g.name}!\nVocê fez ${v} pontos.\nDigite seu Nick:`);
+  name = (name || "").trim().slice(0, 20) || "Jogador Anônimo";
   
-  getAllGames().forEach(g => {
-    const opt = document.createElement('option');
-    opt.value = g.id;
-    opt.textContent = g.title;
-    select.appendChild(opt);
-  });
-  select.value = currentVal;
+  scores.push({ gid: g.id, name: name, best: v, t: Date.now() });
+  scores.sort((a,b) => b.best - a.best);
+  LSW("rcjogos_scores", scores);
+  alert("Pontuação gravada no Hall da Fama!");
 }
 
-function renderRankingTable() {
-  const container = document.getElementById('ranking-list-container');
-  const filter = document.getElementById('ranking-filter-game').value;
+function rank(g) {
+  const top = scores.filter(s => s.gid === g.id).sort((a,b) => b.best - a.best).slice(0, 10);
+  const b = $("rkb"); b.textContent = "";
+  const h = document.createElement("b"); h.textContent = "🏆 " + g.name; b.append(h);
 
-  let filtrados = [...globalRankings];
-  if (filter !== 'all') {
-    filtrados = filtrados.filter(r => r.gameId === filter);
-  }
-
-  if (filtrados.length === 0) {
-    container.innerHTML = `
-      <div class="text-center py-12 text-gray-500 font-mono text-sm">
-        <i class="fa-solid fa-ghost text-3xl mb-3 block text-gray-600"></i>
-        Nenhum recorde registrado ainda. Seja o primeiro a jogar e pontuar!
-      </div>
-    `;
-    return;
-  }
-
-  let html = `<div class="space-y-2">`;
-  filtrados.slice(0, 20).forEach((item, index) => {
-    let badgeColor = 'bg-cyber-bg border-cyber-border text-gray-400';
-    let trophy = `<span class="font-mono font-bold w-6 text-center">${index + 1}</span>`;
-    
-    if (index === 0) {
-      badgeColor = 'bg-yellow-500/10 border-yellow-500/50 text-yellow-400 shadow-neon-yellow';
-      trophy = `<i class="fa-solid fa-trophy text-yellow-400"></i>`;
-    } else if (index === 1) {
-      badgeColor = 'bg-slate-300/10 border-slate-300/40 text-slate-200';
-      trophy = `<i class="fa-solid fa-medal text-slate-300"></i>`;
-    } else if (index === 2) {
-      badgeColor = 'bg-amber-600/10 border-amber-600/40 text-amber-500';
-      trophy = `<i class="fa-solid fa-award text-amber-500"></i>`;
-    }
-
-    html += `
-      <div class="flex items-center justify-between p-3.5 rounded-xl border ${badgeColor} transition-all">
-        <div class="flex items-center space-x-3">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm">
-            ${trophy}
-          </div>
-          <div>
-            <div class="font-orbitron font-bold text-white text-sm">${item.player}</div>
-            <div class="text-[11px] font-mono text-gray-400">${item.gameTitle || 'Arcade'} &bull; ${item.date || ''}</div>
-          </div>
-        </div>
-        <div class="text-right">
-          <span class="font-orbitron font-black text-cyber-neonCyan text-base">${item.score.toLocaleString('pt-BR')}</span>
-          <span class="text-[10px] font-mono text-gray-400 block uppercase tracking-wider">PTS</span>
-        </div>
-      </div>
-    `;
-  });
-  html += `</div>`;
-  container.innerHTML = html;
-}
-
-// ---------------- GRAVAÇÃO DO RECORDE ----------------
-function closeSubmitScoreModal() {
-  document.getElementById('submit-score-modal').classList.add('hidden');
-  pendingScore = null;
-}
-
-async function confirmSubmitScore() {
-  const nick = document.getElementById('player-nick-input').value.trim() || 'Jogador Anônimo';
-  if (!currentGame || !pendingScore) return;
-
-  const btn = document.getElementById('btn-save-score');
-  btn.disabled = true;
-  btn.innerText = 'Gravando...';
-
-  const payload = {
-    action: 'salvar_score',
-    gameId: currentGame.id,
-    gameTitle: currentGame.title,
-    player: nick,
-    score: pendingScore
-  };
-
-  try {
-    const res = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    btn.disabled = false;
-    btn.innerText = 'Gravar Rank';
-    if (data.sucesso) {
-      showToast('Recorde registrado no Hall da Fama!');
-      closeSubmitScoreModal();
-      carregarRankings();
-    } else {
-      showToast('Erro ao salvar score: ' + data.mensagem);
-    }
-  } catch (err) {
-    btn.disabled = false;
-    btn.innerText = 'Gravar Rank';
-    showToast('Erro de rede ao registrar score.');
-  }
-}
-
-// ---------------- SALVAR JOGO NA NUVEM ----------------
-function openAddGameModal() { document.getElementById('add-game-modal').classList.remove('hidden'); }
-function closeAddGameModal() { document.getElementById('add-game-modal').classList.add('hidden'); }
-
-async function processAndSend(title, author, category, desc, htmlContent, fileName) {
-  const btn = document.getElementById('btn-save-game');
-  btn.disabled = true;
-  btn.innerText = 'Enviando...';
-
-  const base64Content = 'data:text/html;charset=utf-8,' + encodeURIComponent(htmlContent);
-  const payload = {
-    action: 'salvar',
-    nome: fileName,
-    tipoMime: 'text/html',
-    conteudo: base64Content,
-    titulo: title,
-    autor: author,
-    categoria: category,
-    desc: desc
-  };
-
-  try {
-    const response = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    });
-    const res = await response.json();
-    btn.disabled = false;
-    btn.innerText = 'Enviar para Nuvem';
-
-    if (res.sucesso) {
-      showToast('Jogo enviado e arquivado na nuvem!');
-      closeAddGameModal();
-      carregarJogosDaNuvem();
-      document.getElementById('new-title').value = '';
-      document.getElementById('new-author').value = '';
-      document.getElementById('new-desc').value = '';
-      document.getElementById('new-code-input').value = '';
-    } else {
-      showToast('Erro ao enviar: ' + res.mensagem);
-    }
-  } catch (err) {
-    btn.disabled = false;
-    btn.innerText = 'Enviar para Nuvem';
-    showToast('Erro de conexão com o Apps Script.');
-  }
-}
-
-function saveCustomGame() {
-  const title = document.getElementById('new-title').value.trim();
-  const category = document.getElementById('new-category').value;
-  const author = document.getElementById('new-author').value.trim();
-  const desc = document.getElementById('new-desc').value.trim() || 'Jogo HTML da nuvem.';
-
-  if (!title || !author) {
-    showToast('Preencha o título e o desenvolvedor!');
-    return;
-  }
-
-  if (addTab === 'file') {
-    const fileInput = document.getElementById('new-file-input');
-    if (fileInput.files.length === 0) {
-      showToast('Selecione um arquivo HTML!');
-      return;
-    }
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      processAndSend(title, author, category, desc, e.target.result, file.name);
-    };
-    reader.readAsText(file);
+  if (!top.length) {
+    const p = document.createElement("p"); p.className = "mu"; p.textContent = "Sem pontuações ainda. Jogue e seja o primeiro!";
+    b.append(p);
   } else {
-    const codeInput = document.getElementById('new-code-input').value.trim();
-    if (!codeInput) {
-      showToast('Cole o código HTML do jogo!');
-      return;
-    }
-    const safeFileName = title.toLowerCase().replace(/[^a-z0-9]/g, '_') + '.html';
-    processAndSend(title, author, category, desc, codeInput, safeFileName);
+    const o = document.createElement("ol");
+    top.forEach(s => {
+      const l = document.createElement("li");
+      l.textContent = s.name + " — " + s.best + " pts";
+      o.append(l);
+    });
+    b.append(o);
   }
+
+  const x = document.createElement("button");
+  x.textContent = "Fechar";
+  x.onclick = () => $("rk").classList.remove("on");
+  b.append(x);
+  $("rk").classList.add("on");
 }
 
-function showToast(msg) {
-  const toast = document.getElementById('toast');
-  document.getElementById('toast-message').innerText = msg;
-  toast.classList.remove('translate-y-20', 'opacity-0');
-  setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
-}
+$("rk").onclick = e => { if (e.target === $("rk")) $("rk").classList.remove("on"); };
 
-window.onload = function() {
-  carregarJogosDaNuvem();
-  carregarRankings();
+$("addb").onclick = () => $("addp").classList.toggle("on");
+$("cancel").onclick = () => $("addp").classList.remove("on");
+
+$("cp").onclick = async () => {
+  try {
+    await navigator.clipboard.writeText(PROMPT);
+    $("cp").textContent = "Copiado!";
+    setTimeout(() => $("cp").textContent = "Copiar prompt", 2000);
+  } catch(e) {
+    $("pr").select();
+  }
 };
+
+$("file").onchange = async e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  $("code").value = await f.text();
+  if (!$("nm").value) $("nm").value = f.name.replace(/\.html?$/i, "");
+};
+
+// Testar instantâneo
+$("test").onclick = () => {
+  const h = $("code").value.trim();
+  if (h.length < 20) { $("msg").textContent = "Cole o código HTML primeiro."; return; }
+  cur = { id: "test", name: $("nm").value || "Teste Local", html: h };
+  play(cur);
+};
+
+// Salvar jogo
+$("save").onclick = () => {
+  const name = $("nm").value.trim(), html = $("code").value.trim();
+  if (!name || html.length < 20) { $("msg").textContent = "Informe o nome e o código HTML."; return; }
+
+  const t = Date.now(), id = "g" + t;
+  const g = { id, name, html, t, cat: $("ct").value, desc: $("ds").value.trim().slice(0, 90) };
+  
+  games.unshift(g);
+  LSW("rcjogos_games", games);
+  render();
+
+  ["nm","ds","code","file"].forEach(k => $(k).value = "");
+  $("addp").classList.remove("on");
+  $("msg").textContent = "Jogo salvo com sucesso!";
+};
+
+// Excluir jogo
+function del(g) {
+  if (!confirm("Excluir o jogo \"" + g.name + "\"?")) return;
+  games = games.filter(x => x.id !== g.id);
+  LSW("rcjogos_games", games);
+  render();
+}
+
+// Inicialização
+render();
+
+// Registro do Service Worker (PWA)
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(err => console.log("SW:", err));
+  });
+}
 </script>
 </body>
 </html>
